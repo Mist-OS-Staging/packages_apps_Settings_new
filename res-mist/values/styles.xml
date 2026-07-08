@@ -22,5 +22,8 @@
     <style name="BottomSheetStyle">
         <item name="android:background">@android:color/transparent</item>
     </style>
-    
+
+    <style name="TextAppearance.Tab.NoCaps" parent="TextAppearance.Design.Tab">
+        <item name="android:textAllCaps">false</item>
+    </style>    
 </resources>
