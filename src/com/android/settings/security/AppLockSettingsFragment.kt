@@ -92,8 +92,8 @@ import com.android.settingslib.spa.framework.theme.SettingsTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.evolution.settings.fragments.miscellaneous.AppPickerItem
-import org.evolution.settings.fragments.miscellaneous.AppPickerSearchField
+import org.mist.settings.fragments.miscellaneous.AppPickerItem
+import org.mist.settings.fragments.miscellaneous.AppPickerSearchField
 
 import com.android.internal.app.AppLockCredentialUtils
 import com.android.settings.core.SubSettingLauncher
