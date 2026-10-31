@@ -32,6 +32,21 @@
         android:clipChildren="false"
         android:orientation="vertical">
 
+        <!-- Animation res MUST be set in code. It sits under the header, in place of the
+        description text it replaces, so it never ends up beneath a low sensor's ring. -->
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/illustration_lottie"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="@dimen/udfps_lottie_translate_y"
+            android:scaleType="centerInside"
+            android:visibility="gone"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            app:lottie_speed=".85" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -47,20 +62,6 @@
                 android:clipToPadding="false"
                 android:layout_gravity="center_horizontal|bottom"
                 tools:ignore="Suspicious0dp">
-
-                <!-- Animation res MUST be set in code -->
-                <com.airbnb.lottie.LottieAnimationView
-                    android:id="@+id/illustration_lottie"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_marginTop="@dimen/udfps_lottie_translate_y"
-                    android:scaleType="centerInside"
-                    android:visibility="gone"
-                    app:lottie_autoPlay="true"
-                    app:lottie_loop="true"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    app:lottie_speed=".85" />
 
                 <include layout="@layout/udfps_enroll_view" />
 
@@ -90,6 +91,8 @@
         android:layout_marginStart="@dimen/fingerprint_side_skip_margin"
         android:layout_marginBottom="@dimen/fingerprint_side_skip_margin"
         android:minWidth="0dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:text="@string/security_settings_fingerprint_enroll_enrolling_skip"
         android:visibility="gone" />
 

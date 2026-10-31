@@ -38,8 +38,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.view.WindowMetrics;
 import android.view.accessibility.AccessibilityManager;
-import android.view.animation.OvershootInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ScrollView;
@@ -64,6 +65,8 @@ import java.util.Locale;
  */
 public class UdfpsEnrollEnrollingView extends GlifLayout {
 
+    private static final int RING_MARGIN_DP = 16;
+
     private final UdfpsUtils mUdfpsUtils;
     private final Context mContext;
     // We don't need to listen to onConfigurationChanged() for mRotation here because
@@ -77,6 +80,8 @@ public class UdfpsEnrollEnrollingView extends GlifLayout {
     private UdfpsEnrollView mUdfpsEnrollView;
     private View mHeaderView;
     private TextView mSideSkipTextView;
+    private View mIllustrationLottie;
+    private boolean mRingResizePending;
     private AccessibilityManager mAccessibilityManager;
 
     private ObjectAnimator mHeaderScrollAnimator;
@@ -101,6 +106,7 @@ public class UdfpsEnrollEnrollingView extends GlifLayout {
         mHeaderView = findViewById(com.google.android.setupdesign.R.id.sud_landscape_header_area);
         mUdfpsEnrollView = findViewById(R.id.udfps_animation_view);
         mSideSkipTextView = findViewById(R.id.side_skip_button);
+        mIllustrationLottie = findViewById(R.id.illustration_lottie);
     }
 
     @Override
@@ -288,66 +294,109 @@ public class UdfpsEnrollEnrollingView extends GlifLayout {
         mSideSkipTextView.setVisibility(View.VISIBLE);
         mSideSkipTextView.bringToFront();
 
-        // Devices with a low sensor draw the progress ring over the bottom of the screen, where
-        // this button lives by default, so move it clear of the ring when they overlap.
+        // Sensors sit anywhere from low on the screen, where the ring runs into this button and
+        // the navigation bar, to high up, where it runs into the header and hint animation, so
+        // refit the ring whenever any of them is laid out.
         final View.OnLayoutChangeListener listener = (v, l, t, r, b, ol, ot, or, ob) ->
-                keepSideSkipClearOfRing();
+                fitRingAndSideSkipButton();
+        for (View view : getRingObstacles()) {
+            if (view != null) {
+                view.addOnLayoutChangeListener(listener);
+            }
+        }
         mUdfpsEnrollView.addOnLayoutChangeListener(listener);
         mSideSkipTextView.addOnLayoutChangeListener(listener);
     }
 
+    /** Views above the sensor that the enroll progress ring must stay below. */
+    private View[] getRingObstacles() {
+        return new View[] {getHeaderTextView(), getDescriptionTextView(), mIllustrationLottie};
+    }
+
     /**
-     * Keeps the side skip button from overlapping the enroll progress ring. The enroll view is
-     * sized to the sensor expanded by the progress bar radius, so its bounds are the ring. The
-     * button stays in its default slot unless it would touch the ring; then it is centered above
-     * the ring, or below it if there is no room above.
+     * Sizes the enroll progress ring so it stays below the header, description and hint
+     * animation, above the navigation bar, and clear of the side skip button in its bottom-start
+     * slot. The ring is centered on the sensor and the enroll view is sized to it, so the view's
+     * width is the ring's diameter. Only when the ring is already as small as it can go does the
+     * button move, by the least distance that clears it.
      */
-    private void keepSideSkipClearOfRing() {
+    private void fitRingAndSideSkipButton() {
+        final UdfpsOverlayParams params = mUdfpsEnrollView.getOverlayParams();
         final View button = mSideSkipTextView;
-        final View parent = (View) button.getParent();
-        if (parent == null || button.getWidth() == 0 || parent.getHeight() == 0
+        if (params == null || mRotation != Surface.ROTATION_0 || button.getHeight() == 0
                 || mUdfpsEnrollView.getWidth() == 0) {
             return;
         }
 
-        final int[] loc = new int[2];
-        mUdfpsEnrollView.getLocationOnScreen(loc);
-        final int gap = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16,
-                getResources().getDisplayMetrics());
-        final Rect keepOut = new Rect(loc[0], loc[1], loc[0] + mUdfpsEnrollView.getWidth(),
-                loc[1] + mUdfpsEnrollView.getHeight());
-        keepOut.inset(-gap, -gap);
+        final int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                RING_MARGIN_DP, getResources().getDisplayMetrics());
+        final Rect sensor = params.getSensorBounds();
+        final int centerX = sensor.centerX();
+        final int centerY = sensor.centerY();
+        final int radius = mUdfpsEnrollView.getWidth() / 2;
+        final int minRadius = sensor.width() / 2 + margin;
+
+        final WindowMetrics windowMetrics = mWindowManager.getCurrentWindowMetrics();
+        final int screenBottom = windowMetrics.getBounds().bottom
+                - windowMetrics.getWindowInsets().getInsets(
+                        WindowInsets.Type.navigationBars()).bottom;
 
         // Screen location includes the current translation, so remove it to get the home slot.
+        final int[] loc = new int[2];
         button.getLocationOnScreen(loc);
-        final int homeLeft = loc[0] - (int) button.getTranslationX();
+        final int left = loc[0];
+        final int right = left + button.getWidth();
         final int homeTop = loc[1] - (int) button.getTranslationY();
-        final Rect home = new Rect(homeLeft, homeTop, homeLeft + button.getWidth(),
-                homeTop + button.getHeight());
+        final int homeBottom = homeTop + button.getHeight();
+        final int dx = Math.max(0, Math.max(left - centerX, centerX - right));
+        final int dy = Math.max(0, Math.max(homeTop - centerY, centerY - homeBottom));
+        final int distanceToButton = (int) Math.hypot(dx, dy);
 
-        parent.getLocationOnScreen(loc);
-        final int parentTop = loc[1];
-        final int parentBottom = loc[1] + parent.getHeight();
-
-        int targetLeft = home.left;
-        int targetTop = home.top;
-        if (Rect.intersects(home, keepOut)) {
-            targetLeft = loc[0] + Math.max(0, (parent.getWidth() - button.getWidth()) / 2);
-            final int above = keepOut.top - button.getHeight();
-            final int below = keepOut.bottom;
-            if (above >= parentTop) {
-                targetTop = above;
-            } else if (below + button.getHeight() <= parentBottom) {
-                targetTop = below;
+        // Visible rects are in window coordinates; shift them by the window's screen offset.
+        getRootView().getLocationOnScreen(loc);
+        final int windowTop = loc[1];
+        final Rect visible = new Rect();
+        int obstaclesBottom = 0;
+        for (View view : getRingObstacles()) {
+            if (view != null && view.getVisibility() == View.VISIBLE
+                    && view.getGlobalVisibleRect(visible)) {
+                obstaclesBottom = Math.max(obstaclesBottom, windowTop + visible.bottom);
             }
         }
 
-        button.animate()
-                .translationX(targetLeft - home.left)
-                .translationY(targetTop - home.top)
-                .setDuration(350)
-                .setInterpolator(new OvershootInterpolator(0.8f))
-                .start();
+        final int maxRadius = Math.max(minRadius,
+                Math.min(Math.min(screenBottom - margin - centerY,
+                        centerY - margin - obstaclesBottom), distanceToButton - margin));
+        if (radius > maxRadius) {
+            // Resize outside of this layout pass; the relayout calls back in with the new ring.
+            if (!mRingResizePending) {
+                mRingResizePending = true;
+                final int decrease = radius - maxRadius;
+                post(() -> {
+                    mRingResizePending = false;
+                    setDecreasePadding(decrease);
+                });
+            }
+            return;
+        }
+
+        float translationY = 0;
+        final int clearRadius = radius + margin;
+        if (distanceToButton < clearRadius) {
+            // Move the button to whichever side of the ring is nearer and still on screen.
+            final int halfChord = (int) Math.sqrt(
+                    (double) clearRadius * clearRadius - (double) dx * dx);
+            final int down = centerY + halfChord - homeTop;
+            final int up = centerY - halfChord - homeBottom;
+            translationY = homeBottom + down <= screenBottom && down < -up ? down : up;
+        }
+        if (button.getTranslationY() != translationY) {
+            button.animate()
+                    .translationY(translationY)
+                    .setDuration(200)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .start();
+        }
     }
 
     private void initUdfpsEnrollView(FingerprintSensorPropertiesInternal udfpsProps,
@@ -401,11 +450,12 @@ public class UdfpsEnrollEnrollingView extends GlifLayout {
 
         // TODO(b/260970216) Instead of hiding the description text view, we should
         //  make the header view scrollable if the text is too long.
-        // If description text view has overlap with udfps progress view, hide it.
+        // If description text view has overlap with udfps progress view, hide it. Wait for any
+        // pending ring resize first, since that may clear the overlap.
         if (!Flags.enrollLayoutTruncateImprovement()) {
             final View descView = getDescriptionTextView();
             getViewTreeObserver().addOnDrawListener(() -> {
-                if (descView.getVisibility() == View.VISIBLE
+                if (descView.getVisibility() == View.VISIBLE && !mRingResizePending
                         && hasOverlap(descView, mUdfpsEnrollView)) {
                     descView.setVisibility(View.GONE);
                 }
