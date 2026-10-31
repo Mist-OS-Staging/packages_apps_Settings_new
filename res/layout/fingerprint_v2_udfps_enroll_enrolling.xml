@@ -67,14 +67,19 @@
 
         <include layout="@layout/fingerprint_v2_udfps_enroll_view" />
 
-        <Button
+        <!-- Compact Expressive tonal pill. UdfpsEnrollFragment moves it out of the way when the
+        sensor ring is drawn low enough on the screen to overlap it. -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/skip"
-            style="@style/SudGlifButton.Secondary"
+            android:theme="@style/Theme.MaterialComponents.DayNight"
+            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|left"
+            android:layout_gravity="bottom|start"
             android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             android:layout_marginBottom="20dp"
+            android:minWidth="0dp"
             android:text="@string/security_settings_fingerprint_enroll_enrolling_skip" />
 
     </FrameLayout>

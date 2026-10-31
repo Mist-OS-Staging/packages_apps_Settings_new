@@ -16,11 +16,13 @@
 
 package com.android.settings.biometrics.fingerprint2.ui.enrollment.modules.enrolling.udfps.ui.fragment
 
+import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.animation.OvershootInterpolator
 import android.widget.Button
 import android.widget.FrameLayout
 import androidx.annotation.VisibleForTesting
@@ -77,6 +79,9 @@ class UdfpsEnrollFragment() : Fragment(R.layout.fingerprint_v2_udfps_enroll_enro
 
     view.findViewById<Button>(R.id.skip)?.apply {
       setOnClickListener { viewModel.negativeButtonClicked() }
+      // Devices with a low sensor draw the progress ring over the bottom of the screen, which is
+      // where this button lives by default, so move it clear of the ring when they overlap.
+      udfpsEnrollView.setOnEnrollRingBoundsChanged { ring -> post { moveClearOfRing(this, ring) } }
     }
 
     udfpsEnrollView.setFinishAnimationCompleted { viewModel.finishedSuccessfully() }
@@ -211,6 +216,42 @@ class UdfpsEnrollFragment() : Fragment(R.layout.fingerprint_v2_udfps_enroll_enro
     viewModel.readyForEnrollment()
   }
 
+  /**
+   * Keeps [button] from overlapping the enroll progress [ring], whose bounds are in the
+   * coordinates of the button's parent. The button stays in its default slot unless it would touch
+   * the ring; then it is centered above the ring, or below it if there is no room above.
+   */
+  private fun moveClearOfRing(button: View, ring: Rect) {
+    val parent = button.parent as? View ?: return
+    if (button.width == 0 || parent.height == 0) return
+
+    val gap = (RING_GAP_DP * button.resources.displayMetrics.density).toInt()
+    val keepOut = Rect(ring).apply { inset(-gap, -gap) }
+    val home = Rect(button.left, button.top, button.right, button.bottom)
+
+    var targetLeft = home.left
+    var targetTop = home.top
+    if (Rect.intersects(home, keepOut)) {
+      targetLeft = ((parent.width - button.width) / 2).coerceAtLeast(0)
+      val above = keepOut.top - button.height
+      val below = keepOut.bottom
+      targetTop =
+        when {
+          above >= 0 -> above
+          below + button.height <= parent.height -> below
+          else -> home.top
+        }
+    }
+
+    button
+      .animate()
+      .translationX((targetLeft - home.left).toFloat())
+      .translationY((targetTop - home.top).toFloat())
+      .setDuration(MOVE_DURATION_MS)
+      .setInterpolator(OvershootInterpolator(0.8f))
+      .start()
+  }
+
   private fun changeViewToReverseLandscape() {
     Log.d(TAG, "changeViewToReverseLandscape")
     val glifContainer = requireView().findViewById<GlifLayout>(R.id.glif_layout)!!
@@ -304,5 +345,7 @@ class UdfpsEnrollFragment() : Fragment(R.layout.fingerprint_v2_udfps_enroll_enro
 
   companion object {
     private const val TAG = "UDFPSEnrollFragment"
+    private const val RING_GAP_DP = 16
+    private const val MOVE_DURATION_MS = 350L
   }
 }

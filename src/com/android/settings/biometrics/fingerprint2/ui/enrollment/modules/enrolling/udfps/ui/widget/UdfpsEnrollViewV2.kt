@@ -54,6 +54,8 @@ class UdfpsEnrollViewV2(context: Context, attrs: AttributeSet?) : FrameLayout(co
   private lateinit var touchExplorationAnnouncer: TouchExplorationAnnouncer
   private var isRecreating = false
   private var onFinishedCompletionAnimation: (() -> Unit)? = null
+  private var enrollRingBounds: Rect? = null
+  private var onEnrollRingBoundsChanged: ((Rect) -> Unit)? = null
 
   init {
     fingerprintProgressDrawable.setFinishAnimationCompleted {
@@ -122,7 +124,25 @@ class UdfpsEnrollViewV2(context: Context, attrs: AttributeSet?) : FrameLayout(co
     fingerprintIcon.drawSensorRectAt(overlayParams)
     fingerprintProgressDrawable.drawProgressAt(overlayParams)
 
+    // The progress ring is the sensor bounds expanded by the progress bar radius.
+    val ringInset = context.resources.getInteger(R.integer.config_udfpsEnrollProgressBar)
+    val ringBounds = Rect(sensorRectOffset).apply { inset(-ringInset, -ringInset) }
+    if (ringBounds != enrollRingBounds) {
+      enrollRingBounds = ringBounds
+      onEnrollRingBoundsChanged?.invoke(ringBounds)
+    }
+
     touchExplorationAnnouncer = TouchExplorationAnnouncer(context, this, overlayParams, udfpsUtils)
+  }
+
+  /**
+   * Registers a listener for the bounds of the enroll progress ring (in this view's coordinates).
+   * It is invoked right away if the bounds are already known, and again whenever they change, so
+   * that sibling views can avoid overlapping the ring on devices with a low sensor.
+   */
+  fun setOnEnrollRingBoundsChanged(listener: (Rect) -> Unit) {
+    onEnrollRingBoundsChanged = listener
+    enrollRingBounds?.let { listener(Rect(it)) }
   }
 
   /** Receive enroll progress event */
