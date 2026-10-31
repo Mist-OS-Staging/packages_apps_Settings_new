@@ -10,8 +10,9 @@
     <!-- Device image for HW info -->
     <string name="config_deviceImageDrawable" translatable="false"></string>
 
-    <!-- Uses the legacy UDFPS enrollment UI with side text instead of a footer button. -->
-    <bool name="config_useLegacyUdfpsUi" translatable="false">false</bool>
+    <!-- Shows the UDFPS enrollment "Do it later" as a compact in-content pill instead of a
+         full-width footer button, so it can move out of the way of the sensor ring. -->
+    <bool name="config_useLegacyUdfpsUi" translatable="false">true</bool>
 
     <!-- ComponentName to launch a vendor-specific enrollment activity if available -->
     <string name="config_face_enroll">com.android.settings/com.google.android.settings.biometrics.face.FaceEnrollActivityDirector</string>

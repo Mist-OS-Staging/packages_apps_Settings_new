@@ -39,6 +39,7 @@ import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
+import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ScrollView;
@@ -286,6 +287,67 @@ public class UdfpsEnrollEnrollingView extends GlifLayout {
         mSideSkipTextView.setOnClickListener(onClickListener);
         mSideSkipTextView.setVisibility(View.VISIBLE);
         mSideSkipTextView.bringToFront();
+
+        // Devices with a low sensor draw the progress ring over the bottom of the screen, where
+        // this button lives by default, so move it clear of the ring when they overlap.
+        final View.OnLayoutChangeListener listener = (v, l, t, r, b, ol, ot, or, ob) ->
+                keepSideSkipClearOfRing();
+        mUdfpsEnrollView.addOnLayoutChangeListener(listener);
+        mSideSkipTextView.addOnLayoutChangeListener(listener);
+    }
+
+    /**
+     * Keeps the side skip button from overlapping the enroll progress ring. The enroll view is
+     * sized to the sensor expanded by the progress bar radius, so its bounds are the ring. The
+     * button stays in its default slot unless it would touch the ring; then it is centered above
+     * the ring, or below it if there is no room above.
+     */
+    private void keepSideSkipClearOfRing() {
+        final View button = mSideSkipTextView;
+        final View parent = (View) button.getParent();
+        if (parent == null || button.getWidth() == 0 || parent.getHeight() == 0
+                || mUdfpsEnrollView.getWidth() == 0) {
+            return;
+        }
+
+        final int[] loc = new int[2];
+        mUdfpsEnrollView.getLocationOnScreen(loc);
+        final int gap = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16,
+                getResources().getDisplayMetrics());
+        final Rect keepOut = new Rect(loc[0], loc[1], loc[0] + mUdfpsEnrollView.getWidth(),
+                loc[1] + mUdfpsEnrollView.getHeight());
+        keepOut.inset(-gap, -gap);
+
+        // Screen location includes the current translation, so remove it to get the home slot.
+        button.getLocationOnScreen(loc);
+        final int homeLeft = loc[0] - (int) button.getTranslationX();
+        final int homeTop = loc[1] - (int) button.getTranslationY();
+        final Rect home = new Rect(homeLeft, homeTop, homeLeft + button.getWidth(),
+                homeTop + button.getHeight());
+
+        parent.getLocationOnScreen(loc);
+        final int parentTop = loc[1];
+        final int parentBottom = loc[1] + parent.getHeight();
+
+        int targetLeft = home.left;
+        int targetTop = home.top;
+        if (Rect.intersects(home, keepOut)) {
+            targetLeft = loc[0] + Math.max(0, (parent.getWidth() - button.getWidth()) / 2);
+            final int above = keepOut.top - button.getHeight();
+            final int below = keepOut.bottom;
+            if (above >= parentTop) {
+                targetTop = above;
+            } else if (below + button.getHeight() <= parentBottom) {
+                targetTop = below;
+            }
+        }
+
+        button.animate()
+                .translationX(targetLeft - home.left)
+                .translationY(targetTop - home.top)
+                .setDuration(350)
+                .setInterpolator(new OvershootInterpolator(0.8f))
+                .start();
     }
 
     private void initUdfpsEnrollView(FingerprintSensorPropertiesInternal udfpsProps,
