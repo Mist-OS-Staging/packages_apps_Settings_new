@@ -26,7 +26,9 @@ import android.util.AttributeSet;
 import android.util.RotationUtils;
 import android.view.Gravity;
 import android.view.Surface;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -52,6 +54,11 @@ public class UdfpsEnrollView extends FrameLayout implements UdfpsEnrollHelper.Li
     private ImageView mFingerprintProgressView;
 
     private int mProgressBarRadius;
+    // Upper bound on mProgressBarRadius, so the ring can be fitted to the space around the sensor.
+    private int mMaxProgressBarRadius = Integer.MAX_VALUE;
+    // Parent position that the current margins were computed from.
+    private final int[] mParentLocation = new int[2];
+    private final int[] mTmpLocation = new int[2];
 
     // sensorRect may be bigger than the sensor. True sensor dimensions are defined in
     // overlayParams.sensorBounds
@@ -142,6 +149,59 @@ public class UdfpsEnrollView extends FrameLayout implements UdfpsEnrollHelper.Li
         onSensorRectUpdated();
     }
 
+    /**
+     * Caps how far the progress ring may extend beyond the sensor. The cap only ever goes down,
+     * so repeated or out-of-order calls are harmless.
+     */
+    void capProgressBarRadius(int maxRadius) {
+        if (maxRadius >= mMaxProgressBarRadius) {
+            return;
+        }
+        mMaxProgressBarRadius = maxRadius;
+        if (mSensorRect != null) {
+            onSensorRectUpdated();
+        }
+    }
+
+    /** Returns the current cap set by {@link #capProgressBarRadius}. */
+    int getMaxProgressBarRadius() {
+        return mMaxProgressBarRadius;
+    }
+
+    /** Returns how far the progress ring currently extends beyond the sensor. */
+    int getProgressBarRadius() {
+        return getPaddingX();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        getViewTreeObserver().addOnGlobalLayoutListener(mParentMovedListener);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        getViewTreeObserver().removeOnGlobalLayoutListener(mParentMovedListener);
+        super.onDetachedFromWindow();
+    }
+
+    // updateDimensions() places this view with margins measured from the parent's position on
+    // screen, so redo it whenever the parent moves (e.g. the header or hint animation changes
+    // size), or the ring and icon drift off the sensor.
+    private final ViewTreeObserver.OnGlobalLayoutListener mParentMovedListener = () -> {
+        if (mSensorRect == null || !(getParent() instanceof View)) {
+            return;
+        }
+        ((View) getParent()).getLocationOnScreen(mTmpLocation);
+        if (mTmpLocation[0] != mParentLocation[0] || mTmpLocation[1] != mParentLocation[1]) {
+            post(() -> {
+                if (mSensorRect != null) {
+                    onSensorRectUpdated();
+                }
+            });
+        }
+    };
+
     private void onSensorRectUpdated() {
         updateDimensions();
 
@@ -172,6 +232,8 @@ public class UdfpsEnrollView extends FrameLayout implements UdfpsEnrollHelper.Li
         FrameLayout.LayoutParams params = (LayoutParams) getLayoutParams();
         if (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) {
             final int[] coords = parentView.getLocationOnScreen();
+            mParentLocation[0] = coords[0];
+            mParentLocation[1] = coords[1];
             final int parentLeft = coords[0];
             final int parentTop = coords[1];
             final int parentRight = parentLeft + parentView.getWidth();
@@ -187,6 +249,8 @@ public class UdfpsEnrollView extends FrameLayout implements UdfpsEnrollHelper.Li
             setLayoutParams(params);
         } else {
             final int[] coords = parentView.getLocationOnScreen();
+            mParentLocation[0] = coords[0];
+            mParentLocation[1] = coords[1];
             final int parentLeft = coords[0];
             final int parentTop = coords[1];
             final int parentRight = parentLeft + parentView.getWidth();
@@ -224,10 +288,10 @@ public class UdfpsEnrollView extends FrameLayout implements UdfpsEnrollHelper.Li
     }
 
     private int getPaddingX() {
-        return mProgressBarRadius;
+        return Math.min(mProgressBarRadius, mMaxProgressBarRadius);
     }
 
     private int getPaddingY() {
-        return mProgressBarRadius;
+        return getPaddingX();
     }
 }

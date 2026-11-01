@@ -323,8 +323,7 @@ public class UdfpsEnrollEnrollingView extends GlifLayout {
     private void fitRingAndSideSkipButton() {
         final UdfpsOverlayParams params = mUdfpsEnrollView.getOverlayParams();
         final View button = mSideSkipTextView;
-        if (params == null || mRotation != Surface.ROTATION_0 || button.getHeight() == 0
-                || mUdfpsEnrollView.getWidth() == 0) {
+        if (params == null || mRotation != Surface.ROTATION_0 || button.getHeight() == 0) {
             return;
         }
 
@@ -333,7 +332,9 @@ public class UdfpsEnrollEnrollingView extends GlifLayout {
         final Rect sensor = params.getSensorBounds();
         final int centerX = sensor.centerX();
         final int centerY = sensor.centerY();
-        final int radius = mUdfpsEnrollView.getWidth() / 2;
+        // Taken from the enroll view's state rather than its laid-out width, which can lag a
+        // pending resize and lead to shrinking the ring more than once.
+        final int radius = sensor.width() / 2 + mUdfpsEnrollView.getProgressBarRadius();
         final int minRadius = sensor.width() / 2 + margin;
 
         final WindowMetrics windowMetrics = mWindowManager.getCurrentWindowMetrics();
@@ -367,16 +368,16 @@ public class UdfpsEnrollEnrollingView extends GlifLayout {
         final int maxRadius = Math.max(minRadius,
                 Math.min(Math.min(screenBottom - margin - centerY,
                         centerY - margin - obstaclesBottom), distanceToButton - margin));
-        if (radius > maxRadius) {
+        // The cap is absolute and only ever goes down, so running this again before the
+        // resize lands is harmless.
+        final int maxProgressBarRadius = maxRadius - sensor.width() / 2;
+        if (maxProgressBarRadius < mUdfpsEnrollView.getMaxProgressBarRadius()) {
             // Resize outside of this layout pass; the relayout calls back in with the new ring.
-            if (!mRingResizePending) {
-                mRingResizePending = true;
-                final int decrease = radius - maxRadius;
-                post(() -> {
-                    mRingResizePending = false;
-                    setDecreasePadding(decrease);
-                });
-            }
+            mRingResizePending = true;
+            post(() -> {
+                mRingResizePending = false;
+                mUdfpsEnrollView.capProgressBarRadius(maxProgressBarRadius);
+            });
             return;
         }
 
