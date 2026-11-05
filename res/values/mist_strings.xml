@@ -406,4 +406,10 @@
 
     <!-- Label for a numbered SIM card.  [CHAR LIMIT=40] -->
     <string name="sim_card_number_title" translatable="false">SIM <xliff:g id="card_number">%1$d</xliff:g></string>
+
+    <!-- Battery saver dark theme -->
+    <string name="battery_saver_dark_theme_title">Turn on with Battery Saver</string>
+    <string name="battery_saver_dark_theme_summary">Dark theme turns on and stays on while Battery Saver is on. Saves the most battery on OLED screens.</string>
+    <!-- Not shown in the UI; describes the preference for the settings API -->
+    <string name="battery_saver_dark_theme_purpose">Controls whether Battery Saver turns on dark theme and prevents changing it until Battery Saver turns off.</string>
 </resources>
