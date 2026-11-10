@@ -144,6 +144,9 @@ public class SettingsBaseActivity extends FragmentActivity implements CategoryHa
 
         if (isAnySetupWizard) {
             findViewById(R.id.content_parent).setFitsSystemWindows(false);
+        } else {
+            // Liquid glass (Mistify > Themes > Liquid glass): frosted window over the wallpaper.
+            LiquidGlassWindow.apply(this);
         }
 
         // This is to hide the toolbar from those pages which don't need a toolbar originally.

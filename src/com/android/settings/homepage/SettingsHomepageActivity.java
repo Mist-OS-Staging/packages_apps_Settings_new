@@ -293,6 +293,8 @@ public class SettingsHomepageActivity extends FragmentActivity implements
 
         initHomepageContainer();
         updateHomepageBackground();
+        // Liquid glass (Mistify > Themes > Liquid glass): frosted homepage over the wallpaper.
+        com.android.settings.core.LiquidGlassWindow.apply(this);
 
         if (savedInstanceState == null) {
             TextView titleView = findViewById(R.id.homepage_title);
