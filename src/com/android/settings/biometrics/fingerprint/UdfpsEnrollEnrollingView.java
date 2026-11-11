@@ -21,6 +21,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.Insets;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -32,6 +33,7 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.DisplayInfo;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.View;
@@ -41,20 +43,25 @@ import android.view.WindowManager;
 import android.view.WindowMetrics;
 import android.view.accessibility.AccessibilityManager;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
 import com.android.settings.R;
+import com.android.settings.biometrics.BiometricUtils;
 import com.android.settings.flags.Flags;
 import com.android.systemui.biometrics.UdfpsUtils;
 import com.android.systemui.biometrics.shared.model.UdfpsOverlayParams;
 
+import com.google.android.setupcompat.template.FooterBarMixin;
 import com.google.android.setupdesign.GlifLayout;
 import com.google.android.setupdesign.view.BottomScrollView;
 
@@ -85,6 +92,7 @@ public class UdfpsEnrollEnrollingView extends GlifLayout {
     private AccessibilityManager mAccessibilityManager;
 
     private ObjectAnimator mHeaderScrollAnimator;
+    private boolean mIsUdfpsLocationLow;
 
     public UdfpsEnrollEnrollingView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -275,6 +283,7 @@ public class UdfpsEnrollEnrollingView extends GlifLayout {
             UdfpsEnrollHelper udfpsEnrollHelper,
             AccessibilityManager accessibilityManager) {
         mAccessibilityManager = accessibilityManager;
+        mIsUdfpsLocationLow = BiometricUtils.isUdfpsLocationLow(mContext, udfpsProps);
         initUdfpsEnrollView(udfpsProps, udfpsEnrollHelper);
 
         if (!mIsLandscape) {
@@ -284,6 +293,39 @@ public class UdfpsEnrollEnrollingView extends GlifLayout {
         }
         mUdfpsEnrollView.setVisibility(View.INVISIBLE);
         setOnHoverListener();
+    }
+
+    @Override
+    public int getFooterBackgroundColor() {
+        return mIsUdfpsLocationLow && !mIsLandscape
+                ? Color.TRANSPARENT : super.getFooterBackgroundColor();
+    }
+
+    @Override
+    public int getFooterBarMoreToScrollBackgroundColor() {
+        return mIsUdfpsLocationLow && !mIsLandscape
+                ? Color.TRANSPARENT : super.getFooterBarMoreToScrollBackgroundColor();
+    }
+
+    void setSecondaryButtonBackground(@ColorInt int color) {
+        // Set the button background only when the button is not under udfps overlay to avoid UI
+        // overlap.
+        if (!mIsLandscape || mShouldUseReverseLandscape) {
+            return;
+        }
+        final Button secondaryButtonView =
+                getMixin(FooterBarMixin.class).getSecondaryButtonView();
+        secondaryButtonView.setBackgroundColor(color);
+        if (mRotation == Surface.ROTATION_90) {
+            secondaryButtonView.setGravity(Gravity.START);
+        } else {
+            secondaryButtonView.setGravity(Gravity.END);
+        }
+        mHeaderView.post(() -> {
+            secondaryButtonView.setLayoutParams(
+                    new LinearLayout.LayoutParams(mHeaderView.getMeasuredWidth(),
+                            ViewGroup.LayoutParams.WRAP_CONTENT));
+        });
     }
 
     void showSideSkipButton(@NonNull View.OnClickListener onClickListener) {

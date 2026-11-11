@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Animatable2;
@@ -47,14 +48,18 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.OrientationEventListener;
 import android.view.Surface;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -282,6 +287,9 @@ public class FingerprintEnrollEnrolling extends BiometricsEnrollEnrolling {
         final boolean useLegacyUdfpsUi = mCanAssumeUdfps
                 && !isLandscape
                 && getResources().getBoolean(R.bool.config_useLegacyUdfpsUi);
+        final boolean startAlign = mCanAssumeUdfps
+                && BiometricUtils.isUdfpsLocationLow(this, props.get(0))
+                && !isLandscape;
 
         updateOrientation((isLandscape
                 ? Configuration.ORIENTATION_LANDSCAPE : Configuration.ORIENTATION_PORTRAIT));
@@ -291,6 +299,7 @@ public class FingerprintEnrollEnrolling extends BiometricsEnrollEnrolling {
         mVibrator = getSystemService(Vibrator.class);
 
         if (useLegacyUdfpsUi) {
+            // Mist: in-content skip pill beside the sensor instead of the footer button.
             mShouldSetFooterBarBackground = false;
             ((UdfpsEnrollEnrollingView) getLayout()).showSideSkipButton(this::onSkipButtonClick);
         } else {
@@ -303,6 +312,31 @@ public class FingerprintEnrollEnrolling extends BiometricsEnrollEnrolling {
                             .setTheme(com.google.android.setupdesign.R.style.SudGlifButton_Secondary)
                             .build()
             );
+
+            if (mCanAssumeUdfps) {
+                final LinearLayout buttonContainer = mFooterBarMixin.getButtonContainer();
+                if (buttonContainer != null) {
+                    buttonContainer.post(() -> {
+                        if (startAlign) {
+                            // Keep the button clear of low-positioned sensors.
+                            buttonContainer.setBackgroundColor(Color.TRANSPARENT);
+                            buttonContainer.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                            final Button secondaryButtonView =
+                                    mFooterBarMixin.getSecondaryButtonView();
+                            if (secondaryButtonView != null) {
+                                final LayoutParams lp = secondaryButtonView.getLayoutParams();
+                                lp.width = LayoutParams.WRAP_CONTENT;
+                                secondaryButtonView.setLayoutParams(lp);
+                                secondaryButtonView.setMinHeight(0);
+                            }
+                        }
+                    });
+                }
+                // Keep the footer bar transparent so it doesn't overlap the UDFPS sensor.
+                mShouldSetFooterBarBackground = false;
+                ((UdfpsEnrollEnrollingView) getLayout()).setSecondaryButtonBackground(
+                        Color.TRANSPARENT);
+            }
         }
 
         final LayerDrawable fingerprintDrawable = mProgressBar != null

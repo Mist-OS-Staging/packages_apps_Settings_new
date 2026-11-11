@@ -145,12 +145,33 @@ class BatteryHeaderPreference :
         private fun quickUpdateHeaderPreference(preference: UsageProgressBarPreference) {
             val batteryIntent = BatteryUtils.getBatteryIntent(preference.context) ?: return
             val batteryLevel: Int = Utils.getBatteryLevel(batteryIntent)
+            val chargeCounterUah =
+                batteryIntent.getIntExtra(android.os.BatteryManager.EXTRA_CHARGE_COUNTER, -1)
             preference.apply {
                 setUsageSummary(com.android.settings.Utils.formatPercentage(batteryLevel))
+                if (chargeCounterUah > 0) {
+                    setTotalSummary(
+                        context.getString(
+                            R.string.battery_charge_counter_summary,
+                            chargeCounterUah / getBatteryDivider(context),
+                        )
+                    )
+                }
                 setPercent(batteryLevel.toLong(), BATTERY_MAX_LEVEL)
                 setBottomSummary("")
             }
         }
+
+        // Some devices with prebuilt kernels report the charge counter in other units,
+        // config_battery_divider lets them override the uAh -> mAh conversion.
+        private fun getBatteryDivider(context: Context): Int {
+            val divider = runCatching {
+                context.resources.getInteger(R.integer.config_battery_divider)
+            }.getOrDefault(DEFAULT_BATTERY_DIVIDER)
+            return if (divider in 1..10000) divider else DEFAULT_BATTERY_DIVIDER
+        }
+
+        private const val DEFAULT_BATTERY_DIVIDER = 1000
     }
 }
 // LINT.ThenChange(BatteryHeaderPreferenceController.java)
