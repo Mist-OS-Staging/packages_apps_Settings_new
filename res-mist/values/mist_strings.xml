@@ -47,4 +47,27 @@
     <string name="text_build_number">Build number</string>
     <string name="front_camer">Front camera</string>
     <string name="ram_active_label">Active</string>
+
+    <!-- About phone (Material 3 Expressive) -->
+    <string name="mist_about_switch_header">Switch header style</string>
+    <string name="mist_about_official">OFFICIAL</string>
+    <string name="mist_about_unofficial">UNOFFICIAL</string>
+    <string name="mist_about_device_sub"><xliff:g id="model" example="Pixel 6a">%1$s</xliff:g> · <xliff:g id="codename" example="bluejay">%2$s</xliff:g></string>
+    <string name="mist_about_version_chip"><xliff:g id="version" example="5.3">%1$s</xliff:g> · <xliff:g id="codename" example="Stable">%2$s</xliff:g></string>
+    <string name="mist_about_mist_version">MistOS version</string>
+    <string name="mist_about_maintainer">MistOS maintainer</string>
+    <string name="mist_about_android_version">Android version</string>
+    <string name="mist_about_android_value">Android <xliff:g id="release" example="17">%1$s</xliff:g></string>
+    <string name="mist_about_android_dessert">Cinnamon Bun</string>
+    <string name="mist_about_security_update">Security update</string>
+    <string name="mist_about_memory_storage">Memory &amp; storage</string>
+    <string name="mist_about_ram">RAM</string>
+    <string name="mist_about_ram_value"><xliff:g id="size" example="6">%1$d</xliff:g> GB · <xliff:g id="label" example="Active">%2$s</xliff:g></string>
+    <string name="mist_about_storage">Storage</string>
+    <string name="mist_about_storage_value"><xliff:g id="used" example="74 GB">%1$s</xliff:g> of <xliff:g id="total" example="128 GB">%2$s</xliff:g> used</string>
+    <string name="mist_about_percent"><xliff:g id="percent" example="58">%1$d</xliff:g>%%</string>
+    <string name="mist_about_specifications">Specifications</string>
+    <string name="mist_about_battery">Battery</string>
+    <string name="mist_about_build">Build</string>
+    <string name="mist_about_kernel_version">Kernel version</string>
 </resources>

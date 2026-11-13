@@ -30,4 +30,10 @@
     <color name="pureBlack">#FFFFFF</color>
     <color name="black">#FFFFFF</color>
 
+    <!-- About phone (Material 3 Expressive) -->
+    <color name="mist_about_official_container">#1A4A2B</color>
+    <color name="mist_about_on_official_container">#B6F2C7</color>
+    <color name="mist_about_unofficial_container">#5C1D17</color>
+    <color name="mist_about_on_unofficial_container">#FFDAD6</color>
+
 </resources>

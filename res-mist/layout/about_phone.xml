@@ -1,714 +1,675 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2025-2026 Project Mist OS
+     SPDX-License-Identifier: Apache-2.0
+
+-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/hyper_mod"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/hyper_mod"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingTop="8dp"
+    android:paddingBottom="16dp"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-    <!-- Wallpaper layout -->
-
-    <LinearLayout
-        android:id="@+id/quick_access_widgets"
+    <com.mist.utils.MistHeroLayout
+        android:id="@+id/hero_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginTop="20dp"
-        android:layout_weight="0">
+        android:background="@drawable/mist_about_hero_bg"
+        android:clipToOutline="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:contentDescription="@string/mist_about_switch_header">
+
+        <com.mist.utils.AnimateWallpaperView
+            android:id="@+id/hero_wallpaper"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:importantForAccessibility="no" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/mist_about_hero_scrim" />
 
         <RelativeLayout
-            android:id="@+id/background"
+            android:id="@+id/header_device"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:layout_marginBottom="0dp"
-            android:layout_weight="1"
-            android:background="@drawable/single_background_top"
-            android:clipChildren="true"
-            android:clipToOutline="true"
-            android:clipToPadding="true">
+            android:layout_height="match_parent"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="18dp">
 
-            <com.mist.utils.AnimateWallpaperView
+            <TextView
+                android:id="@+id/mist_build_type"
+                style="@style/MistAbout.Chip"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true" />
+
+            <ImageView
+                android:id="@+id/hero_logo"
+                android:layout_width="54dp"
+                android:layout_height="33dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/mist_logo"
+                android:tint="@android:color/white"
+                android:importantForAccessibility="no" />
+
+            <TextView
+                android:id="@+id/device_model"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:elevation="0dp"
-                android:gravity="center"
-                android:orientation="vertical" />
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="40dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@*android:string/config_bodyFontFamily"
+                android:textSize="14sp"
+                android:textColor="#E0FFFFFF"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:shadowColor="#40000000"
+                android:shadowRadius="8" />
 
             <TextView
                 android:id="@+id/device_name"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:textSize="38dp"
-                android:textColor="@color/device_name_header"
-                android:layout_marginTop="10dp"
-                android:layout_marginStart="8dp"/>
-
-            <LinearLayout
-                android:id="@+id/frame_build_type"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="8dp"
-                android:padding="6dp"
-                android:layout_below="@+id/device_name"
-                android:background="@drawable/status_chip_bg">
-
-                <ImageView
-                    android:id="@+id/status_chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <TextView
-                    android:id="@+id/mist_build_type"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:paddingStart="10dp"
-                    android:textStyle="bold"
-                    android:textColor="?android:attr/colorControlNormal"/>
-
-            </LinearLayout>
+                android:layout_above="@id/device_model"
+                android:layout_marginEnd="40dp"
+                android:fontFamily="@*android:string/config_headlineFontFamilyMedium"
+                android:textSize="26sp"
+                android:textColor="@android:color/white"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:lineSpacingMultiplier="0.95"
+                android:shadowColor="#40000000"
+                android:shadowRadius="10" />
         </RelativeLayout>
-    </LinearLayout>
-
-    <!-- version layout -->
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="0dp"
-        android:orientation="horizontal"
-        android:background="@drawable/top_menu_top_right"
-        android:weightSum="1">
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight=".7"
-            android:layout_marginStart="10dp"
-            android:orientation="vertical">
+            android:id="@+id/header_brand"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="16dp"
+            android:visibility="gone"
+            android:alpha="0">
+
+            <ImageView
+                android:id="@+id/brand_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="0.62"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/mist_header_logo"
+                android:importantForAccessibility="no" />
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:orientation="vertical">
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/mistos_version"
-                    android:textColor="?android:attr/textColorPrimary" />
+                    android:id="@+id/brand_version"
+                    style="@style/MistAbout.Chip"
+                    android:paddingStart="12dp"
+                    android:background="@drawable/mist_about_glass_chip_bg"
+                    android:textColor="@android:color/white" />
 
                 <TextView
-                    android:id="@+id/mist_version"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textSize="15sp" />
+                    android:id="@+id/brand_build_type"
+                    style="@style/MistAbout.Chip"
+                    android:layout_marginStart="6dp" />
             </LinearLayout>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/hero_swap"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="12dp"
+            android:padding="7dp"
+            android:background="@drawable/mist_about_swap_bg"
+            android:src="@drawable/mist_about_ic_swap"
+            android:tint="@android:color/white"
+            android:importantForAccessibility="no" />
+    </com.mist.utils.MistHeroLayout>
+
+    <LinearLayout
+        android:id="@+id/identity_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@drawable/mist_about_identity_bg">
+
+        <LinearLayout
+            android:id="@+id/identity_mist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:padding="12dp"
+                android:background="@drawable/mist_about_badge_bg"
+                android:scaleType="fitCenter"
+                android:src="@drawable/mist_logo"
+                android:tint="@color/settingslib_materialColorOnPrimary"
+                android:importantForAccessibility="no" />
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
+                android:layout_weight="1"
+                android:layout_marginStart="14dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/mist_maintainer"
-                    android:textColor="?android:attr/textColorPrimary" />
+                    android:text="@string/mist_about_mist_version"
+                    android:fontFamily="@*android:string/config_bodyFontFamilyMedium"
+                    android:textSize="12sp"
+                    android:alpha="0.78"
+                    android:textColor="@color/settingslib_materialColorOnPrimaryContainer" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="true">
+
+                    <TextView
+                        android:id="@+id/mist_version"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@*android:string/config_headlineFontFamilyMedium"
+                        android:textSize="22sp"
+                        android:textColor="@color/settingslib_materialColorOnPrimaryContainer" />
+
+                    <TextView
+                        android:id="@+id/mist_codename"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:fontFamily="@*android:string/config_bodyFontFamilyMedium"
+                        android:textSize="14sp"
+                        android:alpha="0.8"
+                        android:textColor="@color/settingslib_materialColorOnPrimaryContainer" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/identity_device"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:padding="15dp"
+                android:background="@drawable/mist_about_badge_bg"
+                android:src="@drawable/mist_about_ic_phone"
+                android:tint="@color/settingslib_materialColorOnPrimary"
+                android:importantForAccessibility="no" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="14dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/identity_device_sub"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@*android:string/config_bodyFontFamilyMedium"
+                    android:textSize="12sp"
+                    android:alpha="0.78"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:textColor="@color/settingslib_materialColorOnPrimaryContainer" />
+
+                <TextView
+                    android:id="@+id/identity_device_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@*android:string/config_headlineFontFamilyMedium"
+                    android:textSize="22sp"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:textColor="@color/settingslib_materialColorOnPrimaryContainer" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="14dp"
+            android:alpha="0.14"
+            android:background="@color/settingslib_materialColorOnPrimaryContainer" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/maintainer_avatar"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:gravity="center"
+                android:background="@drawable/mist_about_avatar"
+                android:fontFamily="@*android:string/config_headlineFontFamilyMedium"
+                android:textSize="15sp"
+                android:textColor="@color/settingslib_materialColorOnTertiaryContainer"
+                android:importantForAccessibility="no" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/mist_about_maintainer"
+                    android:fontFamily="@*android:string/config_bodyFontFamily"
+                    android:textSize="12sp"
+                    android:alpha="0.78"
+                    android:textColor="@color/settingslib_materialColorOnPrimaryContainer" />
 
                 <TextView
                     android:id="@+id/mantainer_about"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textSize="15sp" />
+                    android:drawablePadding="4dp"
+                    android:fontFamily="@*android:string/config_headlineFontFamilyMedium"
+                    android:textSize="15sp"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:textColor="@color/settingslib_materialColorOnPrimaryContainer" />
             </LinearLayout>
-
         </LinearLayout>
+    </LinearLayout>
 
-        <ImageView
-            android:id="@+id/mist_logo"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="116dp"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:baselineAligned="false"
+        android:clipChildren="false">
+
+        <LinearLayout
+            android:id="@+id/android_bar_info"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight=".3"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:src="@drawable/mist_logo_single"
-            android:layout_gravity="center_vertical" />
-    </LinearLayout>
-
-    <!-- Android Version layout -->
-
-    <LinearLayout
-        android:id="@+id/android_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="2dp"
-        android:layout_marginEnd="0dp"
-        android:background="@drawable/top_menu_top"
-        android:orientation="vertical"
-        android:layout_gravity="center_vertical"
-        android:layout_weight="0">
-
-        <RelativeLayout
-            android:id="@+id/android_bar_info"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginBottom="0dp"
             android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="14dp"
+            android:background="@drawable/mist_about_tile_android"
             android:clickable="true"
-            android:clipChildren="true"
-            android:clipToOutline="true"
-            android:layout_gravity="center"
-            android:clipToPadding="true">
+            android:focusable="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="12dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/android_version"
-                    android:textColor="?android:attr/textColorPrimary" />
+                <ImageView
+                    style="@style/MistAbout.IconCircle"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:padding="7dp"
+                    android:backgroundTint="@color/settingslib_materialColorOnTertiaryContainer"
+                    android:tint="@color/settingslib_materialColorTertiaryContainer"
+                    android:src="@drawable/mist_about_ic_android" />
 
                 <TextView
-                    android:id="@+id/android_version"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="end"
-                    android:layout_marginEnd="10dp"
-                    android:text="17.0 | Cinnamon Bun"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    style="@style/MistAbout.TileLabel"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/mist_about_android_version"
+                    android:textColor="@color/settingslib_materialColorOnTertiaryContainer" />
             </LinearLayout>
 
-        </RelativeLayout>
+            <TextView
+                android:id="@+id/android_version"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@*android:string/config_headlineFontFamilyMedium"
+                android:textSize="17sp"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:textColor="@color/settingslib_materialColorOnTertiaryContainer" />
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/android_codename"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/mist_about_android_dessert"
+                android:fontFamily="@*android:string/config_bodyFontFamilyMedium"
+                android:textSize="13sp"
+                android:alpha="0.8"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:textColor="@color/settingslib_materialColorOnTertiaryContainer" />
+        </LinearLayout>
 
-    <!-- 2nd header Layout -->
-
-    <LinearLayout
-        android:id="@+id/device_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="2dp"
-        android:layout_marginEnd="0dp"
-        android:background="@drawable/top_menu_top"
-        android:orientation="vertical"
-        android:layout_weight="0">
-
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/device_bar_info"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginBottom="0dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:clickable="true"
-            android:clipChildren="true"
-            android:clipToOutline="true"
-            android:clipToPadding="true">
+            android:layout_marginStart="12dp"
+            android:orientation="vertical"
+            android:padding="14dp"
+            android:background="@drawable/mist_about_tile_security">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/security_patch"
-                    android:textColor="?android:attr/textColorPrimary" />
+                <ImageView
+                    style="@style/MistAbout.IconCircle"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:padding="7dp"
+                    android:backgroundTint="@color/settingslib_materialColorOnSecondaryContainer"
+                    android:tint="@color/settingslib_materialColorSecondaryContainer"
+                    android:src="@drawable/mist_about_ic_shield" />
 
                 <TextView
-                    android:id="@+id/security_update"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="end"
-                    android:layout_marginEnd="10dp"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    style="@style/MistAbout.TileLabel"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/mist_about_security_update"
+                    android:textColor="@color/settingslib_materialColorOnSecondaryContainer" />
             </LinearLayout>
 
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/storage_info"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginBottom="0dp"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:clipChildren="true"
-            android:clipToOutline="true"
-            android:clipToPadding="true">
-
-            <LinearLayout
+            <TextView
+                android:id="@+id/security_update"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:fontFamily="@*android:string/config_headlineFontFamilyMedium"
+                android:textSize="17sp"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:textColor="@color/settingslib_materialColorOnSecondaryContainer" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Storage:"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:layout_marginEnd="10dp" />
+            <TextView
+                android:id="@+id/security_update_year"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@*android:string/config_bodyFontFamilyMedium"
+                android:textSize="13sp"
+                android:alpha="0.8"
+                android:singleLine="true"
+                android:textColor="@color/settingslib_materialColorOnSecondaryContainer" />
+        </LinearLayout>
+    </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/storage_about"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:layout_gravity="end"
-                        android:layout_marginEnd="10dp"
-                        android:layout_weight="1"
-                        android:textColor="?android:attr/textColorSecondary"
-                        android:textSize="15sp" />
-
-                    <ProgressBar
-                        android:id="@+id/rom_progress_bar"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_weight="1"
-                        android:layout_width="150dp"
-                        android:layout_height="6dp"
-                        android:layout_marginTop="4dp"
-                        android:layout_marginEnd="10dp"
-                        android:layout_gravity="end"
-                        android:progressDrawable="@drawable/custom_progress_bar"
-                        android:max="100" />
-                </LinearLayout>
-            </LinearLayout>
-        </RelativeLayout>
-</LinearLayout>
-
-    <!-- Device Spec -->
+    <TextView
+        style="@style/MistAbout.SectionHeader"
+        android:text="@string/mist_about_memory_storage" />
 
     <LinearLayout
+        android:id="@+id/storage_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginEnd="0dp"
-        android:background="@drawable/clean_base"
-        android:baselineAligned="false"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@drawable/mist_about_panel_bg">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                style="@style/MistAbout.IconCircle"
+                android:src="@drawable/mist_about_ic_ram" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/MistAbout.TwoLineTitle"
+                    android:text="@string/mist_about_ram" />
+
+                <TextView
+                    android:id="@+id/ram_about"
+                    style="@style/MistAbout.TwoLineSummary"
+                    android:layout_marginTop="0dp"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/ram_percent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@*android:string/config_headlineFontFamilyMedium"
+                android:textSize="15sp"
+                android:fontFeatureSettings="tnum"
+                android:textColor="@color/settingslib_materialColorPrimary" />
+        </LinearLayout>
+
+        <com.mist.utils.WavyProgressView
+            android:id="@+id/ram_progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                style="@style/MistAbout.IconCircle"
+                android:src="@drawable/mist_about_ic_storage" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/MistAbout.TwoLineTitle"
+                    android:text="@string/mist_about_storage" />
+
+                <TextView
+                    android:id="@+id/storage_about"
+                    style="@style/MistAbout.TwoLineSummary"
+                    android:layout_marginTop="0dp"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/storage_percent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@*android:string/config_headlineFontFamilyMedium"
+                android:textSize="15sp"
+                android:fontFeatureSettings="tnum"
+                android:textColor="@color/settingslib_materialColorPrimary" />
+        </LinearLayout>
+
+        <com.mist.utils.WavyProgressView
+            android:id="@+id/rom_progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" />
+    </LinearLayout>
+
+    <TextView
+        style="@style/MistAbout.SectionHeader"
+        android:text="@string/mist_about_specifications" />
+
+    <LinearLayout
+        android:id="@+id/spec_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:baselineAligned="false"
-        android:orientation="horizontal"
-        android:paddingStart="10dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginBottom="0dp"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:clipChildren="true"
-            android:clipToOutline="true"
-            android:clipToPadding="true">
-
-        <TextView
-            android:id="@+id/processor_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/text_processor"
-            android:layout_marginStart="2dp"
-            android:textColor="?android:attr/textColorPrimary" />
-
-        <TextView
-            android:id="@+id/soc_about"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/processor_title"
-            android:layout_marginTop="4dp"
-            android:layout_marginStart="2dp"
-            android:textStyle="bold"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="15sp" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/lockscreen"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginBottom="0dp"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:clipChildren="true"
-            android:clipToOutline="true"
-            android:clipToPadding="true">
-
-            <TextView
-                android:id="@+id/platform_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
-                android:text="@string/platform_title"
-                android:layout_marginStart="2dp"
-                android:textColor="?android:attr/textColorPrimary" />
-
-            <TextView
-                android:id="@+id/platform_about"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/platform_title"
-                android:layout_marginStart="2dp"
-                android:layout_marginTop="4dp"
-                android:textStyle="bold"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textSize="15sp" />
-        </RelativeLayout>
-    </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:baselineAligned="false"
-            android:orientation="horizontal"
-            android:paddingStart="10dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginBottom="0dp"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:clipChildren="true"
-                android:clipToOutline="true"
-                android:clipToPadding="true">
-
-            <TextView
-                android:id="@+id/resolution_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/text_display"
-                android:layout_marginStart="2dp"
-                android:textColor="?android:attr/textColorPrimary" />
-
-            <TextView
-                android:id="@+id/resolution_about"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:textColor="?android:attr/textColorSecondary"
-                android:layout_marginStart="2dp"
-                android:layout_marginTop="4dp"
-                android:layout_below="@+id/resolution_title"
-                android:textSize="15sp" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/screen_size_title"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginBottom="0dp"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:clipChildren="true"
-                android:clipToOutline="true"
-                android:clipToPadding="true">
-
-            <TextView
-                android:id="@+id/screen_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/screen_size"
-                android:layout_marginStart="2dp"
-                android:textColor="?android:attr/textColorPrimary" />
-
-            <TextView
-                android:id="@+id/screen_about"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:layout_marginStart="2dp"
-                android:layout_marginTop="4dp"
-                android:textColor="?android:attr/textColorSecondary"
-                android:layout_below="@+id/screen_title"
-                android:textSize="15sp" />
-            </RelativeLayout>
+        <LinearLayout style="@style/MistAbout.ListRow"
+            android:layout_marginTop="0dp"
+            android:background="@drawable/mist_about_list_top">
+            <ImageView style="@style/MistAbout.IconCircle" android:src="@drawable/mist_about_ic_chip" />
+            <TextView style="@style/MistAbout.ListKey" android:text="@string/text_processor" />
+            <TextView android:id="@+id/soc_about" style="@style/MistAbout.ListValue" />
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:baselineAligned="false"
-            android:orientation="horizontal"
-            android:paddingStart="10dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginBottom="0dp"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:clipChildren="true"
-                android:clipToOutline="true"
-                android:clipToPadding="true">
-
-                <TextView
-                    android:id="@+id/battery_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/text_battery"
-                    android:layout_marginStart="2dp"
-                    android:textColor="?android:attr/textColorPrimary" />
-
-                <TextView
-                    android:id="@+id/battery_about"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_below="@+id/battery_title"
-                    android:textSize="15sp" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/ram_size_title"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginBottom="0dp"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:clipChildren="true"
-                android:clipToOutline="true"
-                android:clipToPadding="true">
-
-                <TextView
-                    android:id="@+id/ram_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="RAM:"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="10dp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="22dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/ram_about"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:layout_marginStart="2dp"
-                        android:layout_below="@+id/ram_title"
-                        android:textColor="?android:attr/textColorSecondary"
-                        android:textSize="15sp" />
-
-                    <ProgressBar
-                        android:id="@+id/ram_progress_bar"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="match_parent"
-                        android:layout_height="6.5dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="50dp"
-                        android:layout_gravity="start"
-                        android:layout_marginStart="2dp"
-                        android:progressDrawable="@drawable/custom_progress_bar"
-                        android:max="100" />
-                </LinearLayout>
-            </RelativeLayout>
-
+        <LinearLayout style="@style/MistAbout.ListRow">
+            <ImageView style="@style/MistAbout.IconCircle" android:src="@drawable/mist_about_ic_board" />
+            <TextView style="@style/MistAbout.ListKey" android:text="@string/platform_title" />
+            <TextView android:id="@+id/platform_about" style="@style/MistAbout.ListValue" />
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:baselineAligned="false"
-            android:orientation="horizontal"
-            android:paddingStart="10dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp">
+        <LinearLayout style="@style/MistAbout.ListRow">
+            <ImageView style="@style/MistAbout.IconCircle" android:src="@drawable/mist_about_ic_resolution" />
+            <TextView style="@style/MistAbout.ListKey" android:text="@string/text_display" />
+            <TextView android:id="@+id/resolution_about" style="@style/MistAbout.ListValue" />
+        </LinearLayout>
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginBottom="0dp"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:clipChildren="true"
-                android:clipToOutline="true"
-                android:clipToPadding="true">
+        <LinearLayout style="@style/MistAbout.ListRow">
+            <ImageView style="@style/MistAbout.IconCircle" android:src="@drawable/mist_about_ic_phone" />
+            <TextView style="@style/MistAbout.ListKey" android:text="@string/screen_size" />
+            <TextView android:id="@+id/screen_about" style="@style/MistAbout.ListValue" />
+        </LinearLayout>
 
-            <TextView
-                android:id="@+id/camera_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/text_camera_rear"
-                android:layout_marginStart="2dp"
-                android:textColor="?android:attr/textColorPrimary" />
+        <LinearLayout style="@style/MistAbout.ListRow">
+            <ImageView style="@style/MistAbout.IconCircle" android:src="@drawable/mist_about_ic_battery" />
+            <TextView style="@style/MistAbout.ListKey" android:text="@string/mist_about_battery" />
+            <TextView android:id="@+id/battery_about" style="@style/MistAbout.ListValue" />
+        </LinearLayout>
 
-                <TextView
-                    android:id="@+id/rear_camera_about"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_below="@+id/camera_title"
-                    android:textSize="15sp" />
-            </RelativeLayout>
+        <LinearLayout style="@style/MistAbout.ListRow">
+            <ImageView style="@style/MistAbout.IconCircle" android:src="@drawable/mist_about_ic_camera" />
+            <TextView style="@style/MistAbout.ListKey" android:text="@string/text_camera_rear" />
+            <TextView android:id="@+id/rear_camera_about" style="@style/MistAbout.ListValue" />
+        </LinearLayout>
 
-            <RelativeLayout
-                android:id="@+id/front_camera_bar"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginBottom="0dp"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:clipChildren="true"
-                android:clipToOutline="true"
-                android:clipToPadding="true">
-
-                <TextView
-                    android:id="@+id/front_camera_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/front_camer"
-                    android:layout_marginStart="2dp"
-                    android:textColor="?android:attr/textColorPrimary" />
-
-                <TextView
-                    android:id="@+id/front_camera_about"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginTop="4dp"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:layout_below="@+id/front_camera_title"
-                    android:textSize="15sp" />
-            </RelativeLayout>
+        <LinearLayout style="@style/MistAbout.ListRow"
+            android:background="@drawable/mist_about_list_bottom">
+            <ImageView style="@style/MistAbout.IconCircle" android:src="@drawable/mist_about_ic_camera_front" />
+            <TextView style="@style/MistAbout.ListKey" android:text="@string/front_camer" />
+            <TextView android:id="@+id/front_camera_about" style="@style/MistAbout.ListValue" />
+        </LinearLayout>
     </LinearLayout>
 
-</LinearLayout>
+    <TextView
+        style="@style/MistAbout.SectionHeader"
+        android:text="@string/mist_about_build" />
 
     <LinearLayout
         android:id="@+id/footer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="0dp"
-        android:background="@drawable/clean_base"
-        android:baselineAligned="false"
-        android:orientation="vertical"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
+        android:orientation="vertical">
+
+        <LinearLayout style="@style/MistAbout.ListRow"
+            android:layout_marginTop="0dp"
+            android:gravity="top"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            android:background="@drawable/mist_about_list_top">
+            <ImageView style="@style/MistAbout.IconCircle" android:src="@drawable/mist_about_ic_calendar" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+                <TextView style="@style/MistAbout.TwoLineTitle" android:text="@string/build_date" />
+                <TextView android:id="@+id/build_date" style="@style/MistAbout.TwoLineSummary" />
+            </LinearLayout>
+        </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
+            android:id="@+id/kernel_row"
+            style="@style/MistAbout.ListRow"
+            android:gravity="top"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground">
+            <ImageView style="@style/MistAbout.IconCircle" android:src="@drawable/mist_about_ic_terminal" />
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="@string/build_date"
-                android:textColor="?android:attr/textColorPrimary" />
+                android:layout_weight="1"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+                <TextView style="@style/MistAbout.TwoLineTitle" android:text="@string/mist_about_kernel_version" />
+                <TextView android:id="@+id/kernel_version" style="@style/MistAbout.TwoLineSummary" />
+            </LinearLayout>
+            <ImageView
+                android:id="@+id/kernel_chevron"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="6dp"
+                android:src="@drawable/mist_about_ic_expand"
+                android:tint="@color/settingslib_materialColorOnSurfaceVariant"
+                android:importantForAccessibility="no" />
+        </LinearLayout>
 
-            <TextView
-                android:id="@+id/build_date"
-                android:layout_width="wrap_content"
+        <LinearLayout style="@style/MistAbout.ListRow"
+            android:gravity="top"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            android:background="@drawable/mist_about_list_bottom">
+            <ImageView style="@style/MistAbout.IconCircle" android:src="@drawable/mist_about_ic_tag" />
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textStyle="bold"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textSize="15sp" />
-
-            <TextView
-                android:layout_width="90dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="@string/text_kernel_version"
-                android:textColor="?android:attr/textColorPrimary" />
-
-            <TextView
-                android:id="@+id/kernel_version"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:layout_marginBottom="10dp"
-                android:textStyle="bold"
-                android:textColor="?android:attr/textColorSecondary" />
-
-            <TextView
-                android:layout_width="90dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="@string/text_build_number"
-                android:textColor="?android:attr/textColorPrimary" />
-
-            <TextView
-                android:id="@+id/build_number"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:layout_marginBottom="10dp"
-                android:textStyle="bold"
-                android:textColor="?android:attr/textColorSecondary" />
+                android:layout_weight="1"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+                <TextView style="@style/MistAbout.TwoLineTitle" android:text="@string/text_build_number" />
+                <TextView android:id="@+id/build_number" style="@style/MistAbout.TwoLineSummary" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
