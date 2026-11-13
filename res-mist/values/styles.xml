@@ -115,15 +115,56 @@
         <item name="android:singleLine">true</item>
     </style>
 
-    <style name="MistAbout.TileLabel">
-        <item name="android:layout_width">0dp</item>
+    <style name="MistAbout.IdentityBadge">
+        <item name="android:layout_width">56dp</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:backgroundTint">@color/settingslib_materialColorOnPrimaryContainer</item>
+        <item name="android:tint">@color/settingslib_materialColorPrimaryContainer</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <style name="MistAbout.TileShape">
+        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:padding">11dp</item>
+        <item name="android:backgroundTint">@color/settingslib_materialColorPrimary</item>
+        <item name="android:tint">@color/settingslib_materialColorOnPrimary</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <style name="MistAbout.TileDecor">
+        <item name="android:layout_width">136dp</item>
+        <item name="android:layout_height">136dp</item>
+        <item name="android:layout_gravity">top|end</item>
+        <item name="android:layout_marginTop">-44dp</item>
+        <item name="android:layout_marginEnd">-44dp</item>
+        <item name="android:tint">@color/settingslib_materialColorPrimary</item>
+        <item name="android:alpha">0.08</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <style name="MistAbout.TileCaption">
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:layout_marginStart">8dp</item>
         <item name="android:fontFamily">@*android:string/config_bodyFontFamilyMedium</item>
-        <item name="android:textSize">12sp</item>
-        <item name="android:alpha">0.82</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/settingslib_materialColorOnSurfaceVariant</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="MistAbout.TileValue">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:gravity">center_vertical|start</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:fontFamily">@*android:string/config_headlineFontFamilyMedium</item>
+        <item name="android:textColor">@color/settingslib_materialColorOnSurface</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:autoSizeTextType">uniform</item>
+        <item name="android:autoSizeMinTextSize">18sp</item>
+        <item name="android:autoSizeMaxTextSize">44sp</item>
+        <item name="android:autoSizeStepGranularity">1sp</item>
     </style>
 </resources>

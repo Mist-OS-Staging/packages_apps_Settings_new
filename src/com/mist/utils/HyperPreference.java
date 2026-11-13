@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.PathInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -59,6 +60,7 @@ public class HyperPreference extends BasePreferenceController implements View.On
     private static final String PREFS = "mist_about_phone";
     private static final String KEY_HEADER_BRAND = "header_brand";
     private static final int HOT_PERCENT = 85;
+    private static final long DECOR_SPIN_MS = 45_000;
 
     private final Context context;
     private final AboutPhoneData phoneData;
@@ -174,10 +176,14 @@ public class HyperPreference extends BasePreferenceController implements View.On
         ((TextView) holder.findViewById(R.id.maintainer_avatar)).setText(
                 Character.isLetterOrDigit(initial)
                         ? new String(Character.toChars(Character.toUpperCase(initial))) : "M");
-        ((TextView) holder.findViewById(R.id.android_version)).setText(
+        final TextView androidVersion = holder.findViewById(R.id.android_version);
+        androidVersion.setText(Build.VERSION.RELEASE_OR_CODENAME);
+        androidVersion.setContentDescription(
                 ctx.getString(R.string.mist_about_android_value, Build.VERSION.RELEASE_OR_CODENAME));
         bindSecurityPatch(holder.findViewById(R.id.security_update),
                 holder.findViewById(R.id.security_update_year));
+        spinDecor(holder.findViewById(R.id.android_decor), -40f, true);
+        spinDecor(holder.findViewById(R.id.security_decor), 40f, false);
 
         final SharedPreferences prefs = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         brandHeader = prefs.getBoolean(KEY_HEADER_BRAND, false);
@@ -263,23 +269,73 @@ public class HyperPreference extends BasePreferenceController implements View.On
         chip.setCompoundDrawablesRelative(icon, null, null, null);
     }
 
-    private void bindSecurityPatch(TextView top, TextView year) {
+    private void bindSecurityPatch(TextView day, TextView monthYear) {
         final String patch = Build.VERSION.SECURITY_PATCH;
         try {
             Date date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(patch);
             if (date == null) throw new IllegalArgumentException();
             Locale locale = Locale.getDefault();
-            top.setText(DateFormat.format(
-                    DateFormat.getBestDateTimePattern(locale, "MMMMd"), date));
-            year.setText(DateFormat.format(
-                    DateFormat.getBestDateTimePattern(locale, "yyyy"), date));
-            year.setVisibility(View.VISIBLE);
+            day.setText(DateFormat.format("d", date));
+            monthYear.setText(DateFormat.format(
+                    DateFormat.getBestDateTimePattern(locale, "MMMMyyyy"), date));
+            monthYear.setVisibility(View.VISIBLE);
+            day.setContentDescription(DateFormat.getLongDateFormat(day.getContext()).format(date));
         } catch (Exception e) {
-            top.setText(DeviceInfoUtils.getSecurityPatch());
-            top.setSingleLine(false);
-            top.setMaxLines(2);
-            year.setVisibility(View.GONE);
+            day.setText(DeviceInfoUtils.getSecurityPatch());
+            day.setMaxLines(2);
+            monthYear.setVisibility(View.GONE);
         }
+    }
+
+    private static void spinDecor(View decor, float fromDegrees, boolean clockwise) {
+        if (decor.getTag() instanceof View.OnAttachStateChangeListener) {
+            decor.removeOnAttachStateChangeListener(
+                    (View.OnAttachStateChangeListener) decor.getTag());
+        }
+        decor.animate().cancel();
+        if (!ValueAnimator.areAnimatorsEnabled()) {
+            decor.setRotation(0f);
+            return;
+        }
+
+        final ObjectAnimator spin = ObjectAnimator.ofFloat(decor, View.ROTATION,
+                0f, clockwise ? 360f : -360f);
+        spin.setDuration(DECOR_SPIN_MS);
+        spin.setInterpolator(new LinearInterpolator());
+        spin.setRepeatCount(ValueAnimator.INFINITE);
+        final boolean[] settled = {false};
+
+        final View.OnAttachStateChangeListener lifecycle = new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View v) {
+                if (spin.isPaused()) {
+                    spin.resume();
+                } else if (settled[0] && !spin.isStarted()) {
+                    spin.start();
+                }
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+                if (!settled[0]) {
+                    v.animate().cancel();
+                    v.setRotation(0f);
+                    settled[0] = true;
+                }
+                if (spin.isStarted()) spin.pause();
+            }
+        };
+        decor.addOnAttachStateChangeListener(lifecycle);
+        decor.setTag(lifecycle);
+
+        decor.setRotation(fromDegrees);
+        decor.animate().rotation(0f).setStartDelay(150).setDuration(900)
+                .setInterpolator(new PathInterpolator(0.05f, 0.7f, 0.1f, 1f))
+                .withEndAction(() -> {
+                    settled[0] = true;
+                    if (decor.isAttachedToWindow() && !spin.isStarted()) spin.start();
+                })
+                .start();
     }
 
     private void applyHeader(View holder, boolean brand, boolean animate) {
