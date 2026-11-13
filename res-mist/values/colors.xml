@@ -40,4 +40,10 @@
     <color name="progress_background">#E0E0E0</color>
     <color name="orange_percentage">#CF6000</color>
     <color name="red_percentage">#BA0C00</color>
+
+    <!-- About phone (Material 3 Expressive) -->
+    <color name="mist_about_official_container">#C3EFCF</color>
+    <color name="mist_about_on_official_container">#0B3A1C</color>
+    <color name="mist_about_unofficial_container">#FFDAD6</color>
+    <color name="mist_about_on_unofficial_container">#410002</color>
 </resources>
