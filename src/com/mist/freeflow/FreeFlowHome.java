@@ -64,6 +64,10 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
     private static final String PREFIX = "top_level_";
     private static final String KEY_BATTERY = "battery";
     private static final String KEY_STORAGE = "storage";
+    private static final String PREFS_HOME = "mist_home";
+    private static final String PREF_LAYOUT_VERSION = "mist_home_layout_version";
+    private static final String PREF_ACCOUNT_REMOVED = "mist_home_account_removed";
+    private static final int LAYOUT_VERSION = 2;
 
     private final SettingsHomepageActivity mActivity;
     private final Palette mPalette;
@@ -210,7 +214,7 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
         updateDots(false);
 
         mGrid.setListener(this);
-        mGrid.setOrder(CardLayout.load(mActivity, mHasAccountProvider), false);
+        mGrid.setOrder(loadLayout(), false);
 
         mActivity.findViewById(R.id.ff_edit_reset).setOnClickListener(v -> resetLayout());
         mActivity.findViewById(R.id.ff_edit_done).setOnClickListener(v -> exitEdit());
@@ -236,6 +240,28 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
         if (animate && FreeFlowStyle.motion()) {
             animateIn();
         }
+    }
+
+    private android.content.SharedPreferences homePrefs() {
+        return mActivity.getSharedPreferences(PREFS_HOME, Context.MODE_PRIVATE);
+    }
+
+    private List<CardLayout.Spec> loadLayout() {
+        List<CardLayout.Spec> order = CardLayout.load(mActivity, mHasAccountProvider);
+        android.content.SharedPreferences sp = homePrefs();
+        if (sp.getInt(PREF_LAYOUT_VERSION, 0) < LAYOUT_VERSION) {
+            if (mHasAccountProvider) {
+                order = CardLayout.withAccountOnTop(order);
+            }
+            CardLayout.save(mActivity, order);
+            sp.edit().putInt(PREF_LAYOUT_VERSION, LAYOUT_VERSION)
+                    .putBoolean(PREF_ACCOUNT_REMOVED, false).apply();
+        } else if (mHasAccountProvider && !sp.getBoolean(PREF_ACCOUNT_REMOVED, false)
+                && CardLayout.find(order, CardLayout.KEY_ACCOUNT) == null) {
+            order = CardLayout.withAccountOnTop(order);
+            CardLayout.save(mActivity, order);
+        }
+        return order;
     }
 
     private void animateIn() {
@@ -573,7 +599,8 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
                 PreferenceGroup g = (PreferenceGroup) p;
                 for (int k = 0; k < g.getPreferenceCount(); k++) {
                     Preference child = g.getPreference(k);
-                    if (available(child)) {
+                    if (child.getKey() != null
+                            && (child.isVisible() || mHiddenByUs.contains(child.getKey()))) {
                         return child;
                     }
                 }
@@ -666,17 +693,49 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
         }
     }
 
+    private void dedupeAccount(PreferenceScreen screen) {
+        if (mEditing) {
+            return;
+        }
+        Preference account = accountPref(screen);
+        if (account == null) {
+            return;
+        }
+        List<CardLayout.Spec> order = mGrid.getOrder();
+        boolean hasAccount = CardLayout.find(order, CardLayout.KEY_ACCOUNT) != null;
+        boolean changed = false;
+        List<CardLayout.Spec> out = new ArrayList<>();
+        for (CardLayout.Spec s : order) {
+            if (!CardLayout.KEY_ACCOUNT.equals(s.key) && resolve(screen, s.key) == account) {
+                changed = true;
+                if (!hasAccount) {
+                    hasAccount = true;
+                    out.add(new CardLayout.Spec(CardLayout.KEY_ACCOUNT, s.col, s.row,
+                            s.colSpan, s.rowSpan));
+                }
+                continue;
+            }
+            out.add(s);
+        }
+        if (changed) {
+            out = CardLayout.pack(out);
+            mGrid.setOrder(out, false);
+            CardLayout.save(mActivity, out);
+        }
+    }
+
     private void refresh() {
         PreferenceScreen screen = screen();
         if (screen == null) {
             return;
         }
         observeAdapter();
+        dedupeAccount(screen);
         applyVisibility(screen);
         Map<String, CardData> map = new HashMap<>();
         for (CardLayout.Spec s : mGrid.getOrder()) {
             Preference p = resolve(screen, s.key);
-            if (!available(p)) {
+            if (CardLayout.KEY_ACCOUNT.equals(s.key) ? p == null : !available(p)) {
                 continue;
             }
             map.put(s.key, dataFor(s.key, p));
@@ -722,6 +781,7 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
             return;
         }
         mEditing = true;
+        mGrid.setOrder(CardLayout.pack(mGrid.shownOrder()), false);
         mGrid.setEditing(true);
         mBehavior.setHideable(true);
         mBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
@@ -735,7 +795,13 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
         }
         mEditing = false;
         mGrid.setEditing(false);
-        CardLayout.save(mActivity, mGrid.getOrder());
+        List<CardLayout.Spec> order = CardLayout.pack(mGrid.getOrder());
+        mGrid.setOrder(order, false);
+        CardLayout.save(mActivity, order);
+        if (mHasAccountProvider) {
+            homePrefs().edit().putBoolean(PREF_ACCOUNT_REMOVED,
+                    CardLayout.find(order, CardLayout.KEY_ACCOUNT) == null).apply();
+        }
         mBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         if (mAddDialog != null) {
             mAddDialog.dismiss();
@@ -746,6 +812,7 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
     }
 
     private void resetLayout() {
+        homePrefs().edit().putBoolean(PREF_ACCOUNT_REMOVED, false).apply();
         mGrid.setOrder(CardLayout.defaults(mHasAccountProvider), true);
         scheduleRefresh();
     }

@@ -229,17 +229,58 @@ final class CardLayout {
                 int row = j.getInt("row");
                 int c = j.getInt("colSpan");
                 int r = j.getInt("rowSpan");
-                if (TextUtils.isEmpty(key) || !seen.add(key)
-                        || c < 1 || c > COLS || r < 1 || r > MAX_ROW_SPAN
-                        || col < 0 || col + c > COLS || row < 0 || row >= MAX_ROW
-                        || !freeAt(o, col, row, c, r, null)) {
-                    return null;
+                if (TextUtils.isEmpty(key) || !seen.add(key)) {
+                    continue;
                 }
-                o.add(new Spec(key, col, row, c, r));
+                c = Math.max(1, Math.min(COLS, c));
+                r = Math.max(1, Math.min(MAX_ROW_SPAN, r));
+                col = Math.max(0, Math.min(COLS - c, col));
+                row = Math.max(0, Math.min(MAX_ROW - 1, row));
+                Spec s = new Spec(key, col, row, c, r);
+                if (!freeAt(o, col, row, c, r, null)) {
+                    int[] p = nearestFree(o, s, null);
+                    s.col = p[0];
+                    s.row = p[1];
+                }
+                o.add(s);
             }
-            return o;
+            return o.isEmpty() ? null : pack(o);
         } catch (JSONException e) {
             return null;
         }
+    }
+
+    static List<Spec> pack(List<Spec> order) {
+        List<Spec> o = copy(order);
+        int bottom = bottom(o);
+        boolean[] used = new boolean[bottom];
+        for (Spec s : o) {
+            for (int r = s.row; r < s.bottom(); r++) {
+                used[r] = true;
+            }
+        }
+        int[] shift = new int[bottom + 1];
+        int empty = 0;
+        for (int r = 0; r < bottom; r++) {
+            shift[r] = empty;
+            if (!used[r]) {
+                empty++;
+            }
+        }
+        for (Spec s : o) {
+            s.row -= shift[s.row];
+        }
+        return o;
+    }
+
+    static List<Spec> withAccountOnTop(List<Spec> order) {
+        List<Spec> o = new ArrayList<>();
+        o.add(new Spec(KEY_ACCOUNT, 0, 0, 2, 2));
+        for (Spec s : order) {
+            if (!KEY_ACCOUNT.equals(s.key) && o.size() < MAX_CARDS) {
+                o.add(new Spec(s.key, s.col, s.row + 2, s.colSpan, s.rowSpan));
+            }
+        }
+        return pack(o);
     }
 }

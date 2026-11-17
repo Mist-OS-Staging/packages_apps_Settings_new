@@ -181,6 +181,16 @@ public class FreeFlowGridView extends ViewGroup implements FreeFlowCardView.Call
         return CardLayout.copy(mOrder);
     }
 
+    List<CardLayout.Spec> shownOrder() {
+        List<CardLayout.Spec> o = new ArrayList<>();
+        for (CardLayout.Spec s : mOrder) {
+            if (isShown(s)) {
+                o.add(s.copy());
+            }
+        }
+        return o;
+    }
+
     boolean isEditing() {
         return mEditing;
     }
