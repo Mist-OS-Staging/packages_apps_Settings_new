@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2026 MistOS
+     SPDX-License-Identifier: Apache-2.0
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/settings_homepage_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/ff_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:overScrollMode="ifContentScrolls"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            android:paddingBottom="128dp">
+
+            <LinearLayout
+                android:id="@+id/app_bar_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingTop="@dimen/search_bar_container_top_padding"
+                android:paddingEnd="16dp"
+                android:paddingBottom="4dp">
+
+                <TextView
+                    android:id="@+id/homepage_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:autoSizeMaxTextSize="44sp"
+                    android:autoSizeMinTextSize="22sp"
+                    android:autoSizeStepGranularity="1sp"
+                    android:autoSizeTextType="uniform"
+                    android:fontFamily="@*android:string/config_headlineFontFamily"
+                    android:gravity="center_vertical|start"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/settings_label"
+                    android:textColor="@color/settingslib_materialColorOnSurface"
+                    android:textSize="44sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/search_action_bar"
+                        android:layout_width="0dp"
+                        android:layout_height="60dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/ff_search_pill_bg"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="@drawable/ff_pill_ripple"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="22dp"
+                        android:paddingEnd="22dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ff_ic_search"
+                            android:tint="@color/settingslib_materialColorOnSurface" />
+
+                        <TextView
+                            android:id="@+id/search_bar_title"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="14dp"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:fontFamily="@*android:string/config_bodyFontFamily"
+                            android:maxLines="1"
+                            android:text="@string/ff_search_settings"
+                            android:textColor="@color/settingslib_materialColorOnSurfaceVariant"
+                            android:textSize="18sp" />
+                    </LinearLayout>
+
+                    <FrameLayout
+                        android:id="@+id/ff_mist_button"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_marginStart="10dp"
+                        android:background="@drawable/ff_mist_button_bg">
+
+                        <ImageView
+                            android:id="@+id/btnMistVersion"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/ff_circle_ripple"
+                            android:contentDescription="@string/ff_mist_info"
+                            android:padding="13dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/logo_single"
+                            android:tint="@color/settingslib_materialColorPrimary" />
+                    </FrameLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/suggestion_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp" />
+
+            <com.mist.freeflow.HeroCarouselView
+                android:id="@+id/ff_hero"
+                android:layout_width="match_parent"
+                android:layout_height="172dp"
+                android:layout_marginTop="16dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="12dp"
+                android:importantForAccessibility="noHideDescendants"
+                android:orientation="horizontal">
+
+                <View
+                    android:id="@+id/ff_dot_0"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp" />
+
+                <View
+                    android:id="@+id/ff_dot_1"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_marginStart="6dp" />
+            </LinearLayout>
+
+            <com.mist.freeflow.FreeFlowGridView
+                android:id="@+id/ff_grid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <FrameLayout
+        android:id="@+id/ff_top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="invisible">
+
+        <LinearLayout
+            android:id="@+id/ff_top_content"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="24dp"
+            android:paddingEnd="8dp">
+
+            <TextView
+                android:id="@+id/ff_top_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:accessibilityHeading="true"
+                android:ellipsize="end"
+                android:fontFamily="@*android:string/config_headlineFontFamily"
+                android:maxLines="1"
+                android:text="@string/settings_label"
+                android:textColor="@color/settingslib_materialColorOnSurface"
+                android:textSize="22sp" />
+
+            <LinearLayout
+                android:id="@+id/ff_top_actions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/ff_top_search"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/ff_circle_ripple"
+                    android:contentDescription="@string/ff_search_settings"
+                    android:scaleType="center"
+                    android:src="@drawable/ff_ic_search"
+                    android:tint="@color/settingslib_materialColorOnSurface" />
+
+                <FrameLayout
+                    android:id="@+id/ff_top_mist"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/ff_mist_button_bg"
+                    android:contentDescription="@string/ff_mist_info"
+                    android:foreground="@drawable/ff_circle_ripple">
+
+                    <ImageView
+                        android:id="@+id/ff_top_mist_logo"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:importantForAccessibility="no"
+                        android:padding="11dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/logo_single"
+                        android:tint="@color/settingslib_materialColorPrimary" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ff_edit_actions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/ff_edit_reset"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:background="@drawable/ff_pill_ripple"
+                    android:fontFamily="@*android:string/config_headlineFontFamilyMedium"
+                    android:gravity="center"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:text="@string/ff_reset"
+                    android:textColor="@color/settingslib_materialColorPrimary"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/ff_edit_done"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/ff_done_bg"
+                    android:drawableStart="@drawable/ff_ic_check"
+                    android:drawablePadding="6dp"
+                    android:drawableTint="@color/settingslib_materialColorOnPrimary"
+                    android:fontFamily="@*android:string/config_headlineFontFamilyMedium"
+                    android:foreground="@drawable/ff_pill_ripple"
+                    android:gravity="center"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="18dp"
+                    android:text="@string/ff_done"
+                    android:textColor="@color/settingslib_materialColorOnPrimary"
+                    android:textSize="15sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <View
+        android:id="@+id/ff_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:background="#52000000"
+        android:clickable="true"
+        android:contentDescription="@string/ff_close_all"
+        android:focusable="false"
+        android:visibility="gone" />
+
+    <com.mist.freeflow.SheetFrame
+        android:id="@+id/ff_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/ff_sheet_bg"
+        android:elevation="8dp"
+        android:orientation="vertical"
+        app:layout_behavior="com.mist.freeflow.FreeFlowSheetBehavior">
+
+        <LinearLayout
+            android:id="@+id/ff_sheet_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="14dp">
+
+            <View
+                android:layout_width="36dp"
+                android:layout_height="5dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/ff_handle" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:accessibilityHeading="true"
+                    android:fontFamily="@*android:string/config_headlineFontFamilyMedium"
+                    android:text="@string/ff_all_settings"
+                    android:textColor="@color/settingslib_materialColorOnSurface"
+                    android:textSize="24sp" />
+
+                <FrameLayout
+                    android:id="@+id/ff_sheet_toggle"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/ff_chip_circle_bg"
+                    android:contentDescription="@string/ff_open_all"
+                    android:focusable="true"
+                    android:foreground="@drawable/ff_circle_ripple">
+
+                    <ImageView
+                        android:id="@+id/ff_sheet_chevron"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ff_ic_chevron_up"
+                        android:tint="@color/settingslib_materialColorOnSurface" />
+                </FrameLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/ff_all_settings_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+    </com.mist.freeflow.SheetFrame>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

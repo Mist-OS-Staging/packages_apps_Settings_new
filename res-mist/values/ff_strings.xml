@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2026 MistOS
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <string name="ff_search_settings">Search settings</string>
+    <string name="ff_mist_info">MistOS info</string>
+    <string name="ff_all_settings">All settings</string>
+    <string name="ff_open_all">Open all settings</string>
+    <string name="ff_close_all">Close all settings</string>
+    <string name="ff_back">Back</string>
+    <string name="ff_close">Close</string>
+
+    <string name="ff_customise">CUSTOMISE</string>
+    <string name="ff_mistify" translatable="false">Mistify</string>
+    <string name="ff_about_device">ABOUT DEVICE</string>
+    <string name="ff_about_device_desc">About device</string>
+    <string name="ff_rom_name" translatable="false">MistOS</string>
+    <string name="ff_android_version">Android <xliff:g id="version" example="16">%1$s</xliff:g></string>
+
+    <string name="ff_edit_shortcuts">Edit shortcuts</string>
+    <string name="ff_reset">Reset</string>
+    <string name="ff_done">Done</string>
+    <string name="ff_add_card">Add card</string>
+    <string name="ff_add_card_title">Add a card</string>
+    <string name="ff_remove_card">Remove <xliff:g id="card" example="Display">%1$s</xliff:g></string>
+    <string name="ff_resize_card">Resize <xliff:g id="card" example="Display">%1$s</xliff:g></string>
+    <string name="ff_move_up">Move up</string>
+    <string name="ff_move_down">Move down</string>
+    <string name="ff_move_left">Move left</string>
+    <string name="ff_move_right">Move right</string>
+    <string name="ff_make_larger">Make larger</string>
+    <string name="ff_make_smaller">Make smaller</string>
+
+    <string name="ff_size_pill">Pill</string>
+    <string name="ff_size_small">Small</string>
+    <string name="ff_size_medium">Medium</string>
+    <string name="ff_size_tall">Tall</string>
+    <string name="ff_size_wide">Wide <xliff:g id="size" example="pill">%1$s</xliff:g></string>
+
+    <string name="ff_temperature"><xliff:g id="degrees" example="32">%1$d</xliff:g>°C</string>
+    <string name="ff_charging">Charging</string>
+    <string name="ff_discharging">Discharging</string>
+    <string name="ff_full">Full</string>
+    <string name="ff_not_charging">Not charging</string>
+    <string name="ff_storage_pair"><xliff:g id="used" example="40 GB">%1$s</xliff:g> / <xliff:g id="total" example="128 GB">%2$s</xliff:g></string>
+    <string name="ff_storage_of">of <xliff:g id="total" example="128 GB">%1$s</xliff:g> used</string>
+    <string name="ff_storage_free">Used · <xliff:g id="free" example="88 GB">%1$s</xliff:g> free</string>
+
+</resources>

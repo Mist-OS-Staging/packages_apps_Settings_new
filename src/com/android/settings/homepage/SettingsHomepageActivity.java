@@ -82,6 +82,8 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
 import androidx.fragment.app.FragmentPagerAdapter;
 import org.mist.settings.MistSettings;
+import com.mist.freeflow.FreeFlowHome;
+import com.mist.freeflow.FreeFlowStyle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import java.util.ArrayList;
@@ -143,6 +145,8 @@ public class SettingsHomepageActivity extends FragmentActivity implements
     private boolean mIsTwoPane;
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
+    private FreeFlowHome mFreeFlow;
+    private int mHomeStyle;
     // A regular layout shows icons on homepage, whereas a simplified layout doesn't.
     private boolean mIsRegularLayout = true;
 
@@ -286,8 +290,12 @@ public class SettingsHomepageActivity extends FragmentActivity implements
             return;
         }
 
+        mHomeStyle = FreeFlowStyle.getStyle(this);
+        final boolean freeFlow = mHomeStyle == FreeFlowStyle.STYLE_FREEFLOW
+                && !ActivityEmbeddingUtils.isAlreadyEmbedded(this);
         setupEdgeToEdge();
-        setContentView(R.layout.settings_homepage_container);
+        setContentView(freeFlow ? R.layout.freeflow_homepage
+                : R.layout.settings_homepage_container);
 
         mIsTwoPane = ActivityEmbeddingUtils.isAlreadyEmbedded(this);
 
@@ -312,6 +320,12 @@ public class SettingsHomepageActivity extends FragmentActivity implements
                 spannableString.setSpan(new android.text.style.ForegroundColorSpan(accentColor),
                         welcomeStr.length(), welcomeStr.length() + userName.length(),
                         android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                if (mFreeFlow != null) {
+                    spannableString.setSpan(
+                            new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                            welcomeStr.length(), welcomeStr.length() + userName.length(),
+                            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
                 final String originalTitle = getString(R.string.settings_label);
                 titleView.setText(spannableString);
                 titleView.postDelayed(() -> {
@@ -387,6 +401,23 @@ public class SettingsHomepageActivity extends FragmentActivity implements
             mSplitControllerAdapter = new SplitControllerCallbackAdapter(splitController);
             mCallback = new SplitInfoCallback(this);
             mSplitControllerAdapter.addSplitListener(this, Runnable::run, mCallback);
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (FreeFlowStyle.getStyle(this) != mHomeStyle) {
+            if (mViewPager != null) {
+                mViewPager.setAdapter(null);
+            }
+            final FragmentManager fm = getSupportFragmentManager();
+            final FragmentTransaction transaction = fm.beginTransaction();
+            for (Fragment fragment : fm.getFragments()) {
+                transaction.remove(fragment);
+            }
+            transaction.commitNowAllowingStateLoss();
+            recreate();
         }
     }
 
@@ -472,6 +503,9 @@ public class SettingsHomepageActivity extends FragmentActivity implements
                             R.dimen.search_bar_container_top_padding);
                     container.setPadding(container.getPaddingLeft(), top_padding + insets.top,
                             container.getPaddingRight(), container.getPaddingBottom());
+                    if (mFreeFlow != null) {
+                        mFreeFlow.onInsets(insets.top);
+                    }
 
                     // Return CONSUMED if you don't want the window insets to keep being
                     // passed down to descendant views.
@@ -494,6 +528,10 @@ public class SettingsHomepageActivity extends FragmentActivity implements
                 }
             });
         }
+    }
+
+    public void showMistInfoSheet() {
+        showBottomSheetDialog();
     }
 
     private void showBottomSheetDialog() {
@@ -894,6 +932,11 @@ public class SettingsHomepageActivity extends FragmentActivity implements
     }
 
     private void initHomepageContainer() {
+        if (findViewById(R.id.ff_grid) != null) {
+            mFreeFlow = new FreeFlowHome(this);
+            mFreeFlow.init();
+            return;
+        }
         mTabLayout = findViewById(R.id.tab_layout);
         mViewPager = findViewById(R.id.viewPager);
 
