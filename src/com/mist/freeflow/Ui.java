@@ -10,6 +10,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -80,6 +81,14 @@ final class Ui {
         }
         Drawable.ConstantState state = d.getConstantState();
         return state != null ? state.newDrawable().mutate() : d;
+    }
+
+    static Drawable glyph(Drawable d) {
+        if (d instanceof LayerDrawable && ((LayerDrawable) d).getNumberOfLayers() > 1) {
+            LayerDrawable layers = (LayerDrawable) d;
+            return copy(layers.getDrawable(layers.getNumberOfLayers() - 1));
+        }
+        return copy(d);
     }
 
     static ImageView circleIcon(Context context, Drawable icon, int size, boolean expressive,

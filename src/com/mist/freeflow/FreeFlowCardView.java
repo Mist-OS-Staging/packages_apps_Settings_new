@@ -355,6 +355,19 @@ final class FreeFlowCardView extends FrameLayout {
         LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(0,
                 LayoutParams.WRAP_CONTENT, 1f);
         tlp.setMarginStart(FreeFlowStyle.dpi(c, 12));
+        if (wide && !meter && value != null) {
+            LinearLayout texts = new LinearLayout(c);
+            texts.setOrientation(LinearLayout.VERTICAL);
+            texts.addView(title);
+            TextView sub = Ui.line(c, 13, 400, mPalette.onSurfaceVariant);
+            sub.setText(value);
+            LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
+                    LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            slp.topMargin = FreeFlowStyle.dpi(c, 1);
+            texts.addView(sub, slp);
+            mContent.addView(texts, tlp);
+            return;
+        }
         mContent.addView(title, tlp);
         if (wide && value != null) {
             TextView v = meter ? Ui.line(c, 17, 700, mPalette.onSurface)
@@ -374,12 +387,10 @@ final class FreeFlowCardView extends FrameLayout {
     private void buildColumn(Context c, boolean big) {
         mContent.addView(icon(c, big ? 60 : 48));
         mContent.addView(new View(c), new LinearLayout.LayoutParams(0, 0, 1f));
-        TextView title = Ui.text(c, big ? 22 : 17, 600, mPalette.onSurface);
+        TextView title = Ui.text(c, big ? 19 : 16, 600, mPalette.onSurface);
         title.setMaxLines(2);
         title.setEllipsize(TextUtils.TruncateAt.END);
-        if (big) {
-            Ui.width(title, 112);
-        }
+        title.setLineSpacing(0f, 1.05f);
         title.setText(mData.title);
         mContent.addView(title);
         if (!TextUtils.isEmpty(mData.summary)) {

@@ -299,7 +299,7 @@ public class SettingsHomepageActivity extends FragmentActivity implements
 
         mIsTwoPane = ActivityEmbeddingUtils.isAlreadyEmbedded(this);
 
-        initHomepageContainer();
+        initHomepageContainer(savedInstanceState == null);
         updateHomepageBackground();
 
         if (savedInstanceState == null) {
@@ -408,16 +408,11 @@ public class SettingsHomepageActivity extends FragmentActivity implements
     protected void onRestart() {
         super.onRestart();
         if (FreeFlowStyle.getStyle(this) != mHomeStyle) {
-            if (mViewPager != null) {
-                mViewPager.setAdapter(null);
-            }
-            final FragmentManager fm = getSupportFragmentManager();
-            final FragmentTransaction transaction = fm.beginTransaction();
-            for (Fragment fragment : fm.getFragments()) {
-                transaction.remove(fragment);
-            }
-            transaction.commitNowAllowingStateLoss();
-            recreate();
+            final Intent restart = new Intent(getIntent());
+            restart.setFlags(0);
+            startActivity(restart);
+            finish();
+            overridePendingTransition(0, 0);
         }
     }
 
@@ -494,7 +489,8 @@ public class SettingsHomepageActivity extends FragmentActivity implements
                     Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars()
                             | WindowInsetsCompat.Type.displayCutout());
                     // Apply the insets paddings to the view.
-                    v.setPadding(insets.left, 0, insets.right, insets.bottom);
+                    v.setPadding(insets.left, 0, insets.right,
+                            mFreeFlow != null ? 0 : insets.bottom);
 
                     // reset the top padding of search bar container to original top padding
                     // plus insets top.
@@ -504,7 +500,7 @@ public class SettingsHomepageActivity extends FragmentActivity implements
                     container.setPadding(container.getPaddingLeft(), top_padding + insets.top,
                             container.getPaddingRight(), container.getPaddingBottom());
                     if (mFreeFlow != null) {
-                        mFreeFlow.onInsets(insets.top);
+                        mFreeFlow.onInsets(insets.top, insets.bottom);
                     }
 
                     // Return CONSUMED if you don't want the window insets to keep being
@@ -931,10 +927,10 @@ public class SettingsHomepageActivity extends FragmentActivity implements
         mMainFragment.reloadHighlightMenuKey();
     }
 
-    private void initHomepageContainer() {
+    private void initHomepageContainer(boolean firstLaunch) {
         if (findViewById(R.id.ff_grid) != null) {
             mFreeFlow = new FreeFlowHome(this);
-            mFreeFlow.init();
+            mFreeFlow.init(firstLaunch);
             return;
         }
         mTabLayout = findViewById(R.id.tab_layout);

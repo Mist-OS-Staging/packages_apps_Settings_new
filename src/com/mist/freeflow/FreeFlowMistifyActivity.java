@@ -231,7 +231,7 @@ public class FreeFlowMistifyActivity extends FragmentActivity {
         FrameLayout circle = new FrameLayout(c);
         circle.setBackground(Ui.oval(colorFor(pref.getKey())));
         ImageView icon = new ImageView(c);
-        Drawable d = Ui.copy(pref.getIcon());
+        Drawable d = Ui.glyph(pref.getIcon());
         if (d != null) {
             d.setTint(0xffffffff);
             icon.setImageDrawable(d);

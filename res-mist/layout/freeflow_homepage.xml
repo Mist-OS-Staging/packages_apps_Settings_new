@@ -114,7 +114,7 @@
                             android:padding="13dp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/logo_single"
-                            android:tint="@color/settingslib_materialColorPrimary" />
+                            android:tint="@color/settingslib_materialColorOnPrimaryContainer" />
                     </FrameLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -212,10 +212,10 @@
 
                 <FrameLayout
                     android:id="@+id/ff_top_mist"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginEnd="12dp"
                     android:background="@drawable/ff_mist_button_bg"
                     android:contentDescription="@string/ff_mist_info"
                     android:foreground="@drawable/ff_circle_ripple">
@@ -225,10 +225,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:importantForAccessibility="no"
-                        android:padding="11dp"
+                        android:padding="9dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/logo_single"
-                        android:tint="@color/settingslib_materialColorPrimary" />
+                        android:tint="@color/settingslib_materialColorOnPrimaryContainer" />
                 </FrameLayout>
             </LinearLayout>
 
@@ -280,7 +280,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0"
-        android:background="#52000000"
+        android:background="#66000000"
         android:clickable="true"
         android:contentDescription="@string/ff_close_all"
         android:focusable="false"

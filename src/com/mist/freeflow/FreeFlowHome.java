@@ -95,6 +95,7 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
     private boolean mHasAccountProvider;
     private boolean mReceiverRegistered;
     private int mTopInset;
+    private int mBottomInset;
 
     private final OnBackPressedCallback mBack = new OnBackPressedCallback(false) {
         @Override
@@ -143,6 +144,7 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
                 public void onFragmentViewCreated(@NonNull FragmentManager fm,
                         @NonNull Fragment f, @NonNull View v, Bundle savedInstanceState) {
                     if (f == mFragment) {
+                        applyListInsets();
                         scheduleRefresh();
                     }
                 }
@@ -178,7 +180,7 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
         mPalette = new Palette(activity);
     }
 
-    public void init() {
+    public void init(boolean animate) {
         mHasAccountProvider = isInstalled("com.google.android.gms");
         mScroll = mActivity.findViewById(R.id.ff_scroll);
         mHeader = mActivity.findViewById(R.id.app_bar_container);
@@ -216,7 +218,10 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
         mActivity.findViewById(R.id.ff_edit_done).setOnClickListener(v -> exitEdit());
         mScroll.setOnScrollChangeListener(
                 (NestedScrollView.OnScrollChangeListener) (v, x, y, ox, oy) -> updateTopBar());
-        mTopBar.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> updateTopBar());
+        View.OnLayoutChangeListener relayout =
+                (v, l, t, r, b, ol, ot, or, ob) -> updateTopBar();
+        mTopBar.addOnLayoutChangeListener(relayout);
+        mHeader.addOnLayoutChangeListener(relayout);
 
         setupSheet();
         attachFragment();
@@ -224,15 +229,68 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
         mActivity.getOnBackPressedDispatcher().addCallback(mActivity, mBack);
         mActivity.getLifecycle().addObserver(this);
         updateTopBarMode();
+        if (animate && FreeFlowStyle.motion()) {
+            animateIn();
+        }
     }
 
-    public void onInsets(int top) {
+    private void animateIn() {
+        View[] views = {mActivity.findViewById(R.id.ff_hero), mGrid};
+        for (int i = 0; i < views.length; i++) {
+            View v = views[i];
+            v.setAlpha(0f);
+            v.setTranslationY(FreeFlowStyle.dp(mActivity, 28));
+            v.setScaleX(0.94f);
+            v.setScaleY(0.94f);
+            v.animate().alpha(1f).translationY(0f).scaleX(1f).scaleY(1f)
+                    .setStartDelay(60 + i * 90L).setDuration(650)
+                    .setInterpolator(FreeFlowStyle.SPRING).start();
+        }
+        View search = mActivity.findViewById(R.id.search_action_bar);
+        View mist = mActivity.findViewById(R.id.ff_mist_button);
+        search.setAlpha(0f);
+        search.setTranslationY(FreeFlowStyle.dp(mActivity, 12));
+        search.animate().alpha(1f).translationY(0f).setStartDelay(20).setDuration(500)
+                .setInterpolator(FreeFlowStyle.SPRING).start();
+        mist.setAlpha(0f);
+        mist.setScaleX(0.5f);
+        mist.setScaleY(0.5f);
+        mist.setRotation(-45f);
+        mist.animate().alpha(1f).scaleX(1f).scaleY(1f).rotation(0f).setStartDelay(80)
+                .setDuration(700).setInterpolator(FreeFlowStyle.SPRING).start();
+        mSheet.setTranslationY(FreeFlowStyle.dp(mActivity, 120));
+        mSheet.animate().translationY(0f).setStartDelay(200).setDuration(600)
+                .setInterpolator(FreeFlowStyle.SHEET).start();
+    }
+
+    public void onInsets(int top, int bottom) {
         mTopInset = top;
+        mBottomInset = bottom;
         if (mTopBar != null) {
             mTopBar.setPadding(0, top, 0, 0);
         }
+        if (mScroll != null) {
+            mScroll.setPadding(0, 0, 0, bottom);
+        }
         if (mSheet != null) {
             mSheet.setTopOffset(FreeFlowStyle.dpi(mActivity, 52) + top);
+        }
+        if (mBehavior != null) {
+            mBehavior.setPeekHeight(FreeFlowStyle.dpi(mActivity, 92) + bottom);
+        }
+        applyListInsets();
+    }
+
+    private void applyListInsets() {
+        RecyclerView list = mFragment != null ? mFragment.getListView() : null;
+        if (list == null) {
+            return;
+        }
+        int bottom = mBottomInset + FreeFlowStyle.dpi(mActivity, 24);
+        list.setClipToPadding(false);
+        if (list.getPaddingBottom() != bottom) {
+            list.setPadding(list.getPaddingLeft(), list.getPaddingTop(),
+                    list.getPaddingRight(), bottom);
         }
     }
 
@@ -276,7 +334,7 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
 
     private void setupSheet() {
         mBehavior = BottomSheetBehavior.from(mSheet);
-        mBehavior.setPeekHeight(FreeFlowStyle.dpi(mActivity, 92));
+        mBehavior.setPeekHeight(FreeFlowStyle.dpi(mActivity, 92) + mBottomInset);
         mBehavior.setHideable(false);
         mBehavior.setFitToContents(true);
         mBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -472,7 +530,7 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
             return false;
         }
         PreferenceGroup parent = p.getParent();
-        return parent == null || parent.isVisible();
+        return parent == null || parent.isVisible() || mHiddenByUs.contains(parent.getKey());
     }
 
     private Preference accountPref(PreferenceScreen screen) {
@@ -549,6 +607,30 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
                 pref.setVisible(true);
             }
         });
+        for (int i = 0; i < screen.getPreferenceCount(); i++) {
+            Preference p = screen.getPreference(i);
+            if (!(p instanceof PreferenceGroup) || p.getKey() == null) {
+                continue;
+            }
+            PreferenceGroup group = (PreferenceGroup) p;
+            boolean ours = mHiddenByUs.contains(group.getKey());
+            if (!group.isVisible() && !ours) {
+                continue;
+            }
+            boolean empty = group.getPreferenceCount() > 0;
+            for (int k = 0; k < group.getPreferenceCount() && empty; k++) {
+                if (group.getPreference(k).isVisible()) {
+                    empty = false;
+                }
+            }
+            if (empty && group.isVisible()) {
+                group.setVisible(false);
+                mHiddenByUs.add(group.getKey());
+            } else if (!empty && ours) {
+                mHiddenByUs.remove(group.getKey());
+                group.setVisible(true);
+            }
+        }
     }
 
     private void refresh() {
@@ -774,12 +856,26 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
             mBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
         if (index == 1) {
-            mActivity.showMistInfoSheet();
+            openAbout();
             return;
         }
         if (FreeFlowStyle.canOpenMistify(mActivity)) {
             mActivity.startActivity(FreeFlowStyle.mistifyIntent(mActivity));
             mActivity.overridePendingTransition(R.anim.ff_slide_in_end, R.anim.ff_hold);
+        }
+    }
+
+    private void openAbout() {
+        PreferenceScreen screen = screen();
+        Preference about = screen != null ? screen.findPreference(KEY_ABOUT) : null;
+        if (about != null && about.isEnabled()) {
+            about.performClick();
+            return;
+        }
+        Intent intent = new Intent(android.provider.Settings.ACTION_DEVICE_INFO_SETTINGS);
+        intent.setPackage(mActivity.getPackageName());
+        if (intent.resolveActivity(mActivity.getPackageManager()) != null) {
+            mActivity.startActivity(intent);
         }
     }
 
@@ -835,6 +931,9 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
         float v;
         if (mEditing) {
             v = 1f;
+        } else if (mHeader.getHeight() == 0 || mTopBar.getHeight() == 0
+                || mHeader.getBottom() <= mTopBar.getHeight()) {
+            v = 0f;
         } else {
             int threshold = mHeader.getBottom() - mTopBar.getHeight();
             v = FreeFlowStyle.clamp((mScroll.getScrollY() - threshold)
