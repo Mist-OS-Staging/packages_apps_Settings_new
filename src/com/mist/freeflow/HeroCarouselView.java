@@ -128,14 +128,37 @@ public class HeroCarouselView extends ViewGroup {
         model.setLineSpacing(0f, 1.05f);
         model.setText(SystemProperties.get("ro.product.model", Build.MODEL));
         card.text.addView(model);
-        String version = context.getString(R.string.ff_rom_name) + " · "
-                + context.getString(R.string.ff_android_version, Build.VERSION.RELEASE);
-        card.text.addView(sub(context, version, p.onTertiaryContainer), wrap(4));
+        LinearLayout chips = new LinearLayout(context);
+        chips.setOrientation(LinearLayout.HORIZONTAL);
+        TextView rom = chip(context, context.getString(R.string.ff_rom_name), p.onTertiary);
+        rom.setBackground(Ui.round(p.tertiary, FreeFlowStyle.dp(context, 999)));
+        chips.addView(rom);
+        TextView version = chip(context,
+                context.getString(R.string.ff_android_version, Build.VERSION.RELEASE),
+                p.onTertiaryContainer);
+        GradientDrawable outline = Ui.round(0, FreeFlowStyle.dp(context, 999));
+        outline.setStroke(FreeFlowStyle.dpi(context, 1.5f),
+                FreeFlowStyle.withAlpha(p.onTertiaryContainer, 0.45f));
+        version.setBackground(outline);
+        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(
+                LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        clp.setMarginStart(FreeFlowStyle.dpi(context, 6));
+        chips.addView(version, clp);
+        card.text.addView(chips, wrap(8));
     }
 
     private static TextView label(Context context, String text, int color) {
         TextView tv = Ui.line(context, 14, 500, FreeFlowStyle.withAlpha(color, 0.85f));
         tv.setText(text);
+        return tv;
+    }
+
+    private static TextView chip(Context context, String text, int color) {
+        TextView tv = Ui.line(context, 12, 500, color);
+        tv.setText(text);
+        int h = FreeFlowStyle.dpi(context, 10);
+        int v = FreeFlowStyle.dpi(context, 4);
+        tv.setPadding(h, v, h, v);
         return tv;
     }
 

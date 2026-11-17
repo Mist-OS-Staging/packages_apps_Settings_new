@@ -255,6 +255,8 @@ final class FreeFlowCardView extends FrameLayout {
             buildBattery(c, wide, big);
         } else if (kind == CardData.STORAGE) {
             buildStorage(c, wide, big);
+        } else if (FreeFlowGridView.isListCard(mSpec, mData)) {
+            buildListCard(c);
         } else {
             buildColumn(c, big, wide);
         }
@@ -372,6 +374,31 @@ final class FreeFlowCardView extends FrameLayout {
                 LayoutParams.WRAP_CONTENT, 1f);
         tlp.setMarginStart(FreeFlowStyle.dpi(c, 12));
         mContent.addView(texts, tlp);
+    }
+
+    private void buildListCard(Context c) {
+        mContent.setOrientation(LinearLayout.HORIZONTAL);
+        mContent.setGravity(Gravity.CENTER_VERTICAL);
+        mContent.addView(icon(c, ICON_DP));
+        LinearLayout texts = new LinearLayout(c);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        TextView title = Ui.line(c, 16, 400, mPalette.onSurface);
+        title.setText(mData.title);
+        texts.addView(title);
+        if (!TextUtils.isEmpty(mData.summary)) {
+            TextView sub = Ui.text(c, 14, 400, mPalette.onSurfaceVariant);
+            sub.setMaxLines(2);
+            sub.setEllipsize(TextUtils.TruncateAt.END);
+            sub.setText(mData.summary);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            lp.topMargin = FreeFlowStyle.dpi(c, 2);
+            texts.addView(sub, lp);
+        }
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0,
+                LayoutParams.WRAP_CONTENT, 1f);
+        lp.setMarginStart(FreeFlowStyle.dpi(c, 12));
+        mContent.addView(texts, lp);
     }
 
     private void buildColumn(Context c, boolean big, boolean wide) {

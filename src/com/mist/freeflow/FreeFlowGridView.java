@@ -59,7 +59,8 @@ public class FreeFlowGridView extends ViewGroup implements FreeFlowCardView.Call
     private final int mTouchSlop;
     private final float mGap;
     private final float mRow;
-    private int[] mRowMap;
+    private float[] mTops;
+    private final float mListCardHeight;
     private final Map<String, FreeFlowCardView> mViews = new LinkedHashMap<>();
     private final Map<String, CardData> mData = new HashMap<>();
     private final Map<String, PointF> mFlip = new HashMap<>();
@@ -135,6 +136,7 @@ public class FreeFlowGridView extends ViewGroup implements FreeFlowCardView.Call
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         mGap = FreeFlowStyle.dp(context, 10);
         mRow = FreeFlowStyle.dp(context, 57);
+        mListCardHeight = FreeFlowStyle.dp(context, 84);
 
         mDropFill.setColor(FreeFlowStyle.withAlpha(mPalette.primary, 0.16f));
         mDropStroke.setStyle(Paint.Style.STROKE);
@@ -276,11 +278,6 @@ public class FreeFlowGridView extends ViewGroup implements FreeFlowCardView.Call
                 bottom = Math.max(bottom, s.bottom());
             }
         }
-        if (!mEditing) {
-            buildRowMap(bottom);
-            return bottom == 0 ? 0 : Math.max(1, mRowMap[bottom]);
-        }
-        mRowMap = null;
         if (mDrop != null) {
             bottom = Math.max(bottom, mDrop[1] + mDrop[3]);
         }
@@ -293,28 +290,65 @@ public class FreeFlowGridView extends ViewGroup implements FreeFlowCardView.Call
         return Math.max(1, bottom + (mEditing ? 4 : 0));
     }
 
-    private void buildRowMap(int bottom) {
-        boolean[] used = new boolean[bottom];
+    static boolean isListCard(CardLayout.Spec s, CardData d) {
+        return s.colSpan == 2 && s.rowSpan == 2 && d != null
+                && d.kind != CardData.BATTERY && d.kind != CardData.STORAGE;
+    }
+
+    private void buildTops() {
+        if (mEditing) {
+            mTops = null;
+            return;
+        }
+        int bottom = 0;
         for (CardLayout.Spec s : mOrder) {
             if (isShown(s)) {
-                for (int r = s.row; r < s.bottom() && r < bottom; r++) {
-                    used[r] = true;
+                bottom = Math.max(bottom, s.bottom());
+            }
+        }
+        boolean[] used = new boolean[bottom];
+        boolean[] full = new boolean[bottom];
+        boolean[] list = new boolean[bottom];
+        java.util.Arrays.fill(list, true);
+        for (CardLayout.Spec s : mOrder) {
+            if (!isShown(s)) {
+                continue;
+            }
+            boolean listCard = isListCard(s, mData.get(s.key));
+            for (int r = s.row; r < s.bottom() && r < bottom; r++) {
+                used[r] = true;
+                if (s.colSpan == 2) {
+                    full[r] = true;
+                }
+                if (!listCard) {
+                    list[r] = false;
                 }
             }
         }
-        mRowMap = new int[bottom + 1];
-        int shift = 0;
+        float compact = (mListCardHeight - mGap) / 2f;
+        mTops = new float[bottom + 1];
+        float y = 0f;
         for (int r = 0; r < bottom; r++) {
-            mRowMap[r] = r - shift;
-            if (!used[r]) {
-                shift++;
+            mTops[r] = y;
+            if (used[r]) {
+                y += (full[r] && list[r] ? compact : mRow) + mGap;
             }
         }
-        mRowMap[bottom] = bottom - shift;
+        mTops[bottom] = y;
     }
 
-    private int displayRow(int row) {
-        return mRowMap != null && row >= 0 && row < mRowMap.length ? mRowMap[row] : row;
+    private float rowTop(int row) {
+        if (mTops != null && row >= 0 && row < mTops.length) {
+            return mTops[row];
+        }
+        return row * (mRow + mGap);
+    }
+
+    private int cardHeight(CardLayout.Spec s) {
+        if (mTops != null && s.bottom() < mTops.length) {
+            return Math.round(mTops[s.bottom()] - mTops[s.row] - mGap);
+        }
+        return Math.round(s.rowSpan * (mRow + mGap) - mGap);
     }
 
     @Override
@@ -322,8 +356,15 @@ public class FreeFlowGridView extends ViewGroup implements FreeFlowCardView.Call
         int width = MeasureSpec.getSize(widthMeasureSpec);
         mAddAt = mEditing && mOrder.size() < CardLayout.MAX_CARDS
                 ? CardLayout.firstFree(mOrder, 1, 2) : null;
-        int rows = rows();
-        int height = rows == 0 ? 0 : Math.round(rows * (mRow + mGap) - mGap);
+        buildTops();
+        int height;
+        if (mTops != null) {
+            float last = mTops[mTops.length - 1];
+            height = last <= 0f ? 0 : Math.round(last - mGap);
+        } else {
+            int rows = rows();
+            height = rows == 0 ? 0 : Math.round(rows * (mRow + mGap) - mGap);
+        }
         float col = (width - mGap) / 2f;
         for (CardLayout.Spec s : mOrder) {
             FreeFlowCardView v = mViews.get(s.key);
@@ -331,9 +372,8 @@ public class FreeFlowGridView extends ViewGroup implements FreeFlowCardView.Call
                 continue;
             }
             int w = Math.round(s.colSpan == 2 ? width : col);
-            int h = Math.round(s.rowSpan * (mRow + mGap) - mGap);
             v.measure(MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY));
+                    MeasureSpec.makeMeasureSpec(cardHeight(s), MeasureSpec.EXACTLY));
         }
         mAddTile.setVisibility(mAddAt != null ? VISIBLE : GONE);
         if (mAddAt != null) {
@@ -353,7 +393,7 @@ public class FreeFlowGridView extends ViewGroup implements FreeFlowCardView.Call
                 continue;
             }
             int left = Math.round(s.col * (col + mGap));
-            int top = Math.round(displayRow(s.row) * (mRow + mGap));
+            int top = Math.round(rowTop(s.row));
             v.layout(left, top, left + v.getMeasuredWidth(), top + v.getMeasuredHeight());
         }
         if (mAddAt != null) {
