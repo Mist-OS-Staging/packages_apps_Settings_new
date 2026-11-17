@@ -196,19 +196,29 @@ public class FreeFlowMistifyActivity extends FragmentActivity {
         row.setClickable(true);
         row.setFocusable(true);
 
-        int size = FreeFlowStyle.dpi(c, 44);
-        FrameLayout circle = new FrameLayout(c);
-        circle.setBackground(Ui.oval(colorFor(pref.getKey())));
-        ImageView icon = new ImageView(c);
-        Drawable d = Ui.glyph(pref.getIcon());
-        if (d != null) {
-            d.setTint(0xffffffff);
-            icon.setImageDrawable(d);
+        int size = FreeFlowStyle.dpi(c, 40);
+        Drawable original = pref.getIcon();
+        if (original instanceof android.graphics.drawable.LayerDrawable
+                && ((android.graphics.drawable.LayerDrawable) original).getNumberOfLayers() > 1) {
+            ImageView shaped = new ImageView(c);
+            shaped.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            shaped.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            shaped.setImageDrawable(Ui.copy(original));
+            row.addView(shaped, new LinearLayout.LayoutParams(size, size));
+        } else {
+            FrameLayout circle = new FrameLayout(c);
+            circle.setBackground(Ui.oval(colorFor(pref.getKey())));
+            ImageView icon = new ImageView(c);
+            Drawable d = Ui.glyph(original);
+            if (d != null) {
+                d.setTint(0xffffffff);
+                icon.setImageDrawable(d);
+            }
+            icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            int iconSize = FreeFlowStyle.dpi(c, 22);
+            circle.addView(icon, new FrameLayout.LayoutParams(iconSize, iconSize, Gravity.CENTER));
+            row.addView(circle, new LinearLayout.LayoutParams(size, size));
         }
-        icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        int iconSize = FreeFlowStyle.dpi(c, 22);
-        circle.addView(icon, new FrameLayout.LayoutParams(iconSize, iconSize, Gravity.CENTER));
-        row.addView(circle, new LinearLayout.LayoutParams(size, size));
 
         LinearLayout texts = new LinearLayout(c);
         texts.setOrientation(LinearLayout.VERTICAL);

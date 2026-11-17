@@ -21,16 +21,20 @@ import android.widget.TextView;
 final class Ui {
 
     private static Typeface sBase;
+    private static String sBaseFamily;
 
     private Ui() {
     }
 
     static Typeface face(Context context, int weight) {
-        if (sBase == null) {
-            String family = context.getString(
-                    com.android.internal.R.string.config_headlineFontFamily);
-            sBase = Typeface.create(TextUtils.isEmpty(family) ? "sans-serif" : family,
-                    Typeface.NORMAL);
+        String family = context.getString(
+                com.android.internal.R.string.config_headlineFontFamily);
+        if (TextUtils.isEmpty(family)) {
+            family = "sans-serif";
+        }
+        if (sBase == null || !family.equals(sBaseFamily)) {
+            sBase = Typeface.create(family, Typeface.NORMAL);
+            sBaseFamily = family;
         }
         return Typeface.create(sBase, weight, false);
     }
