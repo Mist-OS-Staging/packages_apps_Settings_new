@@ -30,6 +30,8 @@ public class HeroCarouselView extends ViewGroup {
         void onPageChanged(int page);
     }
 
+    private static final int BADGE_DP = 124;
+
     private final Card[] mCards = new Card[2];
     private final int mTouchSlop;
     private Listener mListener;
@@ -48,11 +50,11 @@ public class HeroCarouselView extends ViewGroup {
         super(context, attrs);
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         Palette p = new Palette(context);
-        mCards[0] = new Card(context, 0, p.tertiaryContainer, p.onTertiaryContainer,
-                MorphBadgeView.SUNNY, p.pink, R.drawable.ff_ic_brush, 0xffffffff,
+        mCards[0] = new Card(context, 0, p.primaryContainer, p.onPrimaryContainer,
+                MorphBadgeView.COOKIE, p.primary, R.drawable.logo_single, p.onPrimary,
                 context.getString(R.string.ff_mistify));
-        mCards[1] = new Card(context, 1, p.primaryContainer, p.onPrimaryContainer,
-                MorphBadgeView.CLOVER, p.primary, R.drawable.ff_ic_phone, p.onPrimary,
+        mCards[1] = new Card(context, 1, p.tertiaryContainer, p.onTertiaryContainer,
+                MorphBadgeView.SOFT_CLOVER, p.tertiary, R.drawable.ff_ic_phone, p.onTertiary,
                 context.getString(R.string.ff_about_device_desc));
         buildMistify(context, mCards[0], p);
         buildAbout(context, mCards[1], p);
@@ -106,97 +108,50 @@ public class HeroCarouselView extends ViewGroup {
     }
 
     private void buildMistify(Context context, Card card, Palette p) {
-        card.text.addView(label(context, R.string.ff_customise, p.onTertiaryContainer));
-        TextView title = Ui.line(context, 34, 800, p.onTertiaryContainer);
-        Ui.width(title, 125);
+        card.text.addView(label(context, context.getString(R.string.ff_hero_customise),
+                p.onPrimaryContainer));
+        card.text.addView(new View(context), new LinearLayout.LayoutParams(0, 0, 1f));
+        TextView title = Ui.line(context, 30, 500, p.onPrimaryContainer);
         title.setText(R.string.ff_mistify);
-        card.text.addView(title, wrap(0));
-        LinearLayout dots = new LinearLayout(context);
-        dots.setOrientation(LinearLayout.HORIZONTAL);
-        int size = FreeFlowStyle.dpi(context, 20);
-        float full = size / 2f;
-        float[][] radii = {
-                {full, full, full, full, full, full, full, full},
-                {7, 7, 7, 7, 7, 7, 7, 7},
-                {full, full, full, full, full, full, 5, 5},
-                {full, full, full, full, full, full, full, full}};
-        int[] colors = {p.purple, p.pink, p.orange, p.green};
-        card.dots = new View[4];
-        for (int i = 0; i < 4; i++) {
-            View dot = new View(context);
-            GradientDrawable d = new GradientDrawable();
-            float[] r = radii[i].clone();
-            if (i == 1 || i == 2) {
-                for (int k = 0; k < r.length; k++) {
-                    if (r[k] < full) {
-                        r[k] = FreeFlowStyle.dp(context, r[k]);
-                    }
-                }
-            }
-            d.setCornerRadii(r);
-            d.setColor(colors[i]);
-            dot.setBackground(d);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
-            if (i > 0) {
-                lp.setMarginStart(FreeFlowStyle.dpi(context, 6));
-            }
-            dots.addView(dot, lp);
-            card.dots[i] = dot;
-        }
-        card.text.addView(dots, wrap(2));
+        card.text.addView(title);
+        card.text.addView(sub(context, context.getString(R.string.ff_hero_mistify_desc),
+                p.onPrimaryContainer), wrap(4));
     }
 
     private void buildAbout(Context context, Card card, Palette p) {
-        card.text.addView(label(context, R.string.ff_about_device, p.onPrimaryContainer));
-        TextView model = Ui.text(context, 24, 800, p.onPrimaryContainer);
-        Ui.width(model, 112);
+        card.text.addView(label(context, context.getString(R.string.ff_hero_about),
+                p.onTertiaryContainer));
+        card.text.addView(new View(context), new LinearLayout.LayoutParams(0, 0, 1f));
+        TextView model = Ui.text(context, 26, 500, p.onTertiaryContainer);
         model.setMaxLines(2);
+        model.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        model.setLineSpacing(0f, 1.05f);
         model.setText(SystemProperties.get("ro.product.model", Build.MODEL));
-        card.text.addView(model, wrap(0));
-        LinearLayout chips = new LinearLayout(context);
-        chips.setOrientation(LinearLayout.HORIZONTAL);
-        TextView rom = chip(context, context.getString(R.string.ff_rom_name), p.onPrimary);
-        rom.setBackground(Ui.round(p.primary, FreeFlowStyle.dp(context, 999)));
-        chips.addView(rom);
-        TextView version = chip(context,
-                context.getString(R.string.ff_android_version, Build.VERSION.RELEASE),
-                p.onPrimaryContainer);
-        GradientDrawable outline = Ui.round(0, FreeFlowStyle.dp(context, 999));
-        outline.setStroke(FreeFlowStyle.dpi(context, 1.5f),
-                FreeFlowStyle.withAlpha(p.onPrimaryContainer, 0.4f));
-        version.setBackground(outline);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        lp.setMarginStart(FreeFlowStyle.dpi(context, 6));
-        chips.addView(version, lp);
-        card.text.addView(chips, wrap(0));
+        card.text.addView(model);
+        String version = context.getString(R.string.ff_rom_name) + " · "
+                + context.getString(R.string.ff_android_version, Build.VERSION.RELEASE);
+        card.text.addView(sub(context, version, p.onTertiaryContainer), wrap(4));
     }
 
-    private static TextView label(Context context, int res, int color) {
-        TextView tv = Ui.line(context, 11, 800, color);
-        tv.setLetterSpacing(0.08f);
-        tv.setText(res);
-        int h = FreeFlowStyle.dpi(context, 10);
-        int v = FreeFlowStyle.dpi(context, 5);
-        tv.setPadding(h, v, h, v);
-        tv.setBackground(Ui.round(FreeFlowStyle.withAlpha(color, 0.12f),
-                FreeFlowStyle.dp(context, 10)));
+    private static TextView label(Context context, String text, int color) {
+        TextView tv = Ui.line(context, 14, 500, FreeFlowStyle.withAlpha(color, 0.85f));
+        tv.setText(text);
         return tv;
     }
 
-    private static TextView chip(Context context, String text, int color) {
-        TextView tv = Ui.line(context, 12, 700, color);
+    private static TextView sub(Context context, String text, int color) {
+        TextView tv = Ui.text(context, 14, 400, FreeFlowStyle.withAlpha(color, 0.85f));
+        tv.setMaxLines(2);
+        tv.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        tv.setLineSpacing(0f, 1.1f);
         tv.setText(text);
-        int h = FreeFlowStyle.dpi(context, 10);
-        int v = FreeFlowStyle.dpi(context, 4);
-        tv.setPadding(h, v, h, v);
         return tv;
     }
 
     private LinearLayout.LayoutParams wrap(int topDp) {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        lp.topMargin = FreeFlowStyle.dpi(getContext(), 8 + topDp);
+        lp.topMargin = FreeFlowStyle.dpi(getContext(), topDp);
         return lp;
     }
 
@@ -211,7 +166,7 @@ public class HeroCarouselView extends ViewGroup {
         int w0 = Math.round(FreeFlowStyle.lerp(large, slim, mFraction));
         w0 = Math.max(slim / 2, Math.min(inner - gap - slim / 2, w0));
         int w1 = inner - gap - w0;
-        int textWidth = Math.max(FreeFlowStyle.dpi(getContext(), 150),
+        int textWidth = Math.max(FreeFlowStyle.dpi(getContext(), 114),
                 large - FreeFlowStyle.dpi(getContext(), 136));
         int[] widths = {w0, w1};
         for (int i = 0; i < 2; i++) {
@@ -296,12 +251,13 @@ public class HeroCarouselView extends ViewGroup {
         final GradientDrawable bg;
         final GradientDrawable mask;
         View[] dots;
+        private float mExpand = 1f;
 
         Card(Context context, int index, int color, int onColor, int shape, int badgeColor,
                 int iconRes, int iconTint, String description) {
             super(context);
-            bg = Ui.round(color, FreeFlowStyle.dp(context, 44));
-            mask = Ui.round(0xffffffff, FreeFlowStyle.dp(context, 44));
+            bg = Ui.round(color, FreeFlowStyle.dp(context, 28));
+            mask = Ui.round(0xffffffff, FreeFlowStyle.dp(context, 28));
             setBackground(bg);
             setForeground(Ui.ripple(FreeFlowStyle.withAlpha(onColor, 0.12f), mask));
             setClipToOutline(true);
@@ -320,19 +276,18 @@ public class HeroCarouselView extends ViewGroup {
             text = new LinearLayout(context);
             text.setOrientation(LinearLayout.VERTICAL);
             text.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
-            LayoutParams tlp = new LayoutParams(FreeFlowStyle.dpi(context, 160),
-                    LayoutParams.WRAP_CONTENT, Gravity.CENTER_VERTICAL | Gravity.START);
-            tlp.setMarginStart(FreeFlowStyle.dpi(context, 24));
+            LayoutParams tlp = new LayoutParams(FreeFlowStyle.dpi(context, 114),
+                    LayoutParams.MATCH_PARENT, Gravity.TOP | Gravity.START);
+            int inset = FreeFlowStyle.dpi(context, 20);
+            tlp.setMargins(inset, inset, inset, inset);
             addView(text, tlp);
 
             badge = new MorphBadgeView(context);
             badge.setShape(shape);
             badge.setColor(badgeColor);
             badge.setIcon(context.getDrawable(iconRes), iconTint);
-            int size = FreeFlowStyle.dpi(context, 88);
-            LayoutParams blp = new LayoutParams(size, size, Gravity.CENTER_VERTICAL | Gravity.END);
-            blp.setMarginEnd(FreeFlowStyle.dpi(context, 16));
-            addView(badge, blp);
+            int size = FreeFlowStyle.dpi(context, BADGE_DP);
+            addView(badge, new LayoutParams(size, size, Gravity.TOP | Gravity.START));
         }
 
         void setTextWidth(int width) {
@@ -344,16 +299,34 @@ public class HeroCarouselView extends ViewGroup {
         }
 
         void setExpand(float e) {
+            mExpand = e;
             Context c = getContext();
-            float radius = FreeFlowStyle.dp(c, FreeFlowStyle.lerp(32, 44, e));
+            float morph = FreeFlowStyle.clamp(e, 0f, 1f);
+            float radius = FreeFlowStyle.dp(c, FreeFlowStyle.lerp(24, 28, morph));
             bg.setCornerRadius(radius);
             mask.setCornerRadius(radius);
-            float morph = FreeFlowStyle.clamp(e, 0f, 1f);
-            badge.setState(morph, FreeFlowStyle.lerp(52f / 88f, 1f, e),
+            badge.setState(morph, FreeFlowStyle.lerp(48f / BADGE_DP, 1f, e),
                     FreeFlowStyle.lerp(-135f, 0f, e),
-                    FreeFlowStyle.dp(c, FreeFlowStyle.lerp(22, 34, morph)));
-            badge.setTranslationX(FreeFlowStyle.dp(c, FreeFlowStyle.lerp(28, 0, e)));
+                    FreeFlowStyle.dp(c, FreeFlowStyle.lerp(22, 40, morph)));
+            placeBadge();
             invalidateOutline();
+        }
+
+        private void placeBadge() {
+            Context c = getContext();
+            float e = mExpand;
+            float half = FreeFlowStyle.dp(c, BADGE_DP) / 2f;
+            float w = getWidth();
+            float cx = FreeFlowStyle.lerp(w / 2f, w - FreeFlowStyle.dp(c, 44), e);
+            float cy = FreeFlowStyle.dp(c, FreeFlowStyle.lerp(86, 78, e));
+            badge.setTranslationX(cx - half);
+            badge.setTranslationY(cy - half);
+        }
+
+        @Override
+        protected void onLayout(boolean changed, int l, int t, int r, int b) {
+            super.onLayout(changed, l, t, r, b);
+            placeBadge();
         }
 
         void hideText(boolean animate) {

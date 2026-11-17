@@ -29,6 +29,8 @@ final class FreeFlowCardView extends FrameLayout {
         void onRemove(String key);
     }
 
+    private static final int ICON_DP = 40;
+
     final String key;
     private final Palette mPalette;
     private final boolean mExpressive;
@@ -347,47 +349,39 @@ final class FreeFlowCardView extends FrameLayout {
     private void buildPill(Context c, boolean wide) {
         mContent.setOrientation(LinearLayout.HORIZONTAL);
         mContent.setGravity(Gravity.CENTER_VERTICAL);
-        mContent.addView(icon(c, 38));
-        boolean meter = mData.kind == CardData.BATTERY || mData.kind == CardData.STORAGE;
+        mContent.addView(icon(c, ICON_DP));
         String value = pillValue(wide);
-        TextView title = Ui.line(c, 16, 600, mPalette.onSurface);
-        title.setText(!wide && meter && value != null ? value : mData.title);
-        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(0,
-                LayoutParams.WRAP_CONTENT, 1f);
-        tlp.setMarginStart(FreeFlowStyle.dpi(c, 12));
-        if (wide && !meter && value != null) {
-            LinearLayout texts = new LinearLayout(c);
-            texts.setOrientation(LinearLayout.VERTICAL);
-            texts.addView(title);
+        LinearLayout texts = new LinearLayout(c);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        TextView title;
+        if (value == null) {
+            title = Ui.text(c, 16, 500, mPalette.onSurface);
+            title.setMaxLines(2);
+            title.setEllipsize(TextUtils.TruncateAt.END);
+            title.setLineSpacing(0f, 1.05f);
+        } else {
+            title = Ui.line(c, 16, 500, mPalette.onSurface);
+        }
+        title.setText(mData.title);
+        texts.addView(title);
+        if (value != null) {
             TextView sub = Ui.line(c, 13, 400, mPalette.onSurfaceVariant);
             sub.setText(value);
             LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
                     LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-            slp.topMargin = FreeFlowStyle.dpi(c, 1);
+            slp.topMargin = FreeFlowStyle.dpi(c, 2);
             texts.addView(sub, slp);
-            mContent.addView(texts, tlp);
-            return;
         }
-        mContent.addView(title, tlp);
-        if (wide && value != null) {
-            TextView v = meter ? Ui.line(c, 17, 700, mPalette.onSurface)
-                    : Ui.line(c, 13, 400, mPalette.onSurfaceVariant);
-            if (meter) {
-                Ui.width(v, 112);
-            }
-            v.setText(value);
-            v.setMaxWidth(Math.round(mCardWidth * 0.45f));
-            LinearLayout.LayoutParams vlp = new LinearLayout.LayoutParams(
-                    LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-            vlp.setMarginStart(FreeFlowStyle.dpi(c, 8));
-            mContent.addView(v, vlp);
-        }
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(0,
+                LayoutParams.WRAP_CONTENT, 1f);
+        tlp.setMarginStart(FreeFlowStyle.dpi(c, 12));
+        mContent.addView(texts, tlp);
     }
 
     private void buildColumn(Context c, boolean big) {
-        mContent.addView(icon(c, big ? 60 : 48));
+        mContent.addView(icon(c, ICON_DP));
         mContent.addView(new View(c), new LinearLayout.LayoutParams(0, 0, 1f));
-        TextView title = Ui.text(c, big ? 19 : 16, 600, mPalette.onSurface);
+        TextView title = Ui.text(c, big ? 18 : 16, 500, mPalette.onSurface);
         title.setMaxLines(2);
         title.setEllipsize(TextUtils.TruncateAt.END);
         title.setLineSpacing(0f, 1.05f);
@@ -410,10 +404,10 @@ final class FreeFlowCardView extends FrameLayout {
         mContent.setGravity(Gravity.CENTER_VERTICAL);
         mContent.setPaddingRelative(mContent.getPaddingStart() + FreeFlowStyle.dpi(c, 4),
                 mContent.getPaddingTop(), mContent.getPaddingEnd(), mContent.getPaddingBottom());
-        mContent.addView(icon(c, 48));
+        mContent.addView(icon(c, ICON_DP));
         LinearLayout texts = new LinearLayout(c);
         texts.setOrientation(LinearLayout.VERTICAL);
-        TextView title = Ui.line(c, 17, 600, mPalette.onSurface);
+        TextView title = Ui.line(c, 16, 500, mPalette.onSurface);
         title.setText(mData.title);
         texts.addView(title);
         if (!TextUtils.isEmpty(mData.summary)) {
@@ -437,14 +431,14 @@ final class FreeFlowCardView extends FrameLayout {
         mContent.setGravity(Gravity.CENTER_VERTICAL);
         mContent.setPaddingRelative(mContent.getPaddingStart() + FreeFlowStyle.dpi(c, 4),
                 mContent.getPaddingTop(), mContent.getPaddingEnd(), mContent.getPaddingBottom());
-        mContent.addView(icon(c, 56));
+        mContent.addView(icon(c, 44));
         LinearLayout texts = new LinearLayout(c);
         texts.setOrientation(LinearLayout.VERTICAL);
-        TextView title = Ui.line(c, 20, 400, mPalette.onSurface);
+        TextView title = Ui.line(c, 18, 500, mPalette.onSurface);
         title.setText(mData.title);
         texts.addView(title);
         if (!TextUtils.isEmpty(mData.summary)) {
-            TextView sub = Ui.text(c, 15, 400, mPalette.onSurfaceVariant);
+            TextView sub = Ui.text(c, 14, 400, mPalette.onSurfaceVariant);
             sub.setMaxLines(2);
             sub.setEllipsize(TextUtils.TruncateAt.END);
             sub.setText(mData.summary);
@@ -459,33 +453,39 @@ final class FreeFlowCardView extends FrameLayout {
         mContent.addView(texts, lp);
     }
 
-    private float numberSize(boolean wide, boolean big) {
+    private float numberSize(boolean big) {
         if (big) {
-            return wide ? (mSpec.rowSpan == 4 ? 64 : 48) : (mSpec.rowSpan == 4 ? 44 : 34);
+            return mSpec.rowSpan == 4 ? 44 : 34;
         }
-        return wide ? 32 : 26;
+        return 26;
     }
 
-    private LinearLayout meterTop(Context c, String number, boolean wide, boolean big) {
+    private LinearLayout meterTop(Context c, String number, boolean wide) {
         LinearLayout top = new LinearLayout(c);
         top.setOrientation(LinearLayout.HORIZONTAL);
         top.setGravity(Gravity.CENTER_VERTICAL);
-        top.addView(icon(c, 36));
-        TextView num = Ui.line(c, numberSize(wide, big), 700, mPalette.onSurface);
-        Ui.width(num, 115);
-        num.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
-        num.setText(number != null ? number : "");
+        top.addView(icon(c, ICON_DP));
+        TextView title = Ui.line(c, 16, 500, mPalette.onSurface);
+        title.setText(mData.title);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0,
                 LayoutParams.WRAP_CONTENT, 1f);
-        lp.setMarginStart(FreeFlowStyle.dpi(c, 8));
-        top.addView(num, lp);
+        lp.setMarginStart(FreeFlowStyle.dpi(c, 12));
+        top.addView(title, lp);
+        if (wide && number != null) {
+            TextView num = Ui.line(c, 22, 500, mPalette.onSurface);
+            num.setText(number);
+            LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(
+                    LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            nlp.setMarginStart(FreeFlowStyle.dpi(c, 8));
+            top.addView(num, nlp);
+        }
         return top;
     }
 
     private View bar(Context c, float fraction, int color) {
         LinearLayout bar = new LinearLayout(c);
         bar.setOrientation(LinearLayout.HORIZONTAL);
-        int h = FreeFlowStyle.dpi(c, 10);
+        int h = FreeFlowStyle.dpi(c, 8);
         float r = h / 2f;
         float f = FreeFlowStyle.clamp(fraction < 0 ? 0 : fraction, 0f, 1f);
         View fill = new View(c);
@@ -506,49 +506,46 @@ final class FreeFlowCardView extends FrameLayout {
         return bar;
     }
 
-    private TextView chip(Context c, String text) {
-        TextView tv = Ui.line(c, 12, 700, mPalette.onSurface);
-        tv.setText(text);
-        int h = FreeFlowStyle.dpi(c, 9);
-        int v = FreeFlowStyle.dpi(c, 3);
-        tv.setPadding(h, v, h, v);
-        tv.setBackground(Ui.round(mPalette.surfaceContainerHighest,
-                FreeFlowStyle.dp(c, 999)));
-        return tv;
-    }
-
     private void spacer(Context c) {
         mContent.addView(new View(c), new LinearLayout.LayoutParams(0, 0, 1f));
     }
 
+    private void buildMeter(Context c, String number, float fraction, String meta,
+            boolean wide, boolean big) {
+        mContent.addView(meterTop(c, number, wide));
+        spacer(c);
+        if (!wide && number != null) {
+            TextView num = Ui.line(c, numberSize(big), 500, mPalette.onSurface);
+            num.setText(number);
+            mContent.addView(num);
+        }
+        LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(
+                LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        blp.topMargin = FreeFlowStyle.dpi(c, wide ? 0 : 8);
+        mContent.addView(bar(c, fraction, mPalette.primary), blp);
+        if ((wide || big) && !TextUtils.isEmpty(meta)) {
+            TextView line = Ui.line(c, 13, 400, mPalette.onSurfaceVariant);
+            line.setText(meta);
+            LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(
+                    LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            llp.topMargin = FreeFlowStyle.dpi(c, 8);
+            mContent.addView(line, llp);
+        }
+    }
+
     private void buildBattery(Context c, boolean wide, boolean big) {
-        String pct = mData.level >= 0 ? mData.level + "%" : "";
-        mContent.addView(meterTop(c, pct, wide, big));
-        spacer(c);
-        mContent.addView(bar(c, mData.level / 100f, mPalette.green));
-        spacer(c);
-        LinearLayout chips = new LinearLayout(c);
-        chips.setOrientation(LinearLayout.HORIZONTAL);
-        chips.setGravity(Gravity.CENTER_VERTICAL);
-        int gap = FreeFlowStyle.dpi(c, 6);
-        if (mData.temperature != null) {
-            chips.addView(chip(c, mData.temperature));
-        }
+        String pct = mData.level >= 0 ? mData.level + "%" : null;
+        StringBuilder meta = new StringBuilder();
         if (mData.status != null) {
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-            lp.setMarginStart(chips.getChildCount() > 0 ? gap : 0);
-            chips.addView(chip(c, mData.status), lp);
+            meta.append(mData.status);
         }
-        if (wide) {
-            TextView label = Ui.line(c, 13, 400, mPalette.onSurfaceVariant);
-            label.setText(mData.title);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-            lp.setMarginStart(gap);
-            chips.addView(label, lp);
+        if (mData.temperature != null) {
+            if (meta.length() > 0) {
+                meta.append(" · ");
+            }
+            meta.append(mData.temperature);
         }
-        mContent.addView(chips);
+        buildMeter(c, pct, mData.level / 100f, meta.toString(), wide, big);
     }
 
     private void buildStorage(Context c, boolean wide, boolean big) {
@@ -556,19 +553,13 @@ final class FreeFlowCardView extends FrameLayout {
         if (wide && mData.used != null && mData.total != null) {
             number = c.getString(R.string.ff_storage_pair, mData.used, mData.total);
         }
-        mContent.addView(meterTop(c, number, wide, big));
-        spacer(c);
-        mContent.addView(bar(c, mData.usedFraction, mPalette.purple));
-        spacer(c);
-        TextView line = Ui.line(c, 13, 400, mPalette.onSurfaceVariant);
-        if (wide && mData.free != null) {
-            line.setText(c.getString(R.string.ff_storage_free, mData.free));
+        String meta = null;
+        if (mData.free != null) {
+            meta = c.getString(R.string.ff_storage_free, mData.free);
         } else if (mData.total != null) {
-            line.setText(c.getString(R.string.ff_storage_of, mData.total));
-        } else {
-            line.setText(mData.title);
+            meta = c.getString(R.string.ff_storage_of, mData.total);
         }
-        mContent.addView(line);
+        buildMeter(c, number, mData.usedFraction, meta, wide, big);
     }
 
     static final class BadgeView extends View {

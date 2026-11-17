@@ -13,6 +13,8 @@ final class Palette {
     final int onPrimary;
     final int primaryContainer;
     final int onPrimaryContainer;
+    final int tertiary;
+    final int onTertiary;
     final int tertiaryContainer;
     final int onTertiaryContainer;
     final int surfaceBright;
@@ -23,6 +25,8 @@ final class Palette {
     final int onSurface;
     final int onSurfaceVariant;
     final int outline;
+    final int outlineVariant;
+    final int background;
 
     final int blue;
     final int pink;
@@ -41,6 +45,10 @@ final class Palette {
                 .settingslib_materialColorPrimaryContainer);
         onPrimaryContainer = c(context, com.android.settingslib.widget.theme.R.color
                 .settingslib_materialColorOnPrimaryContainer);
+        tertiary = c(context, com.android.settingslib.widget.theme.R.color
+                .settingslib_materialColorTertiary);
+        onTertiary = c(context, com.android.settingslib.widget.theme.R.color
+                .settingslib_materialColorOnTertiary);
         tertiaryContainer = c(context, com.android.settingslib.widget.theme.R.color
                 .settingslib_materialColorTertiaryContainer);
         onTertiaryContainer = c(context, com.android.settingslib.widget.theme.R.color
@@ -61,6 +69,12 @@ final class Palette {
                 .settingslib_materialColorOnSurfaceVariant);
         outline = c(context, com.android.settingslib.widget.theme.R.color
                 .settingslib_materialColorOutline);
+        outlineVariant = c(context, com.android.settingslib.widget.theme.R.color
+                .settingslib_materialColorOutlineVariant);
+        android.content.res.TypedArray a = context.obtainStyledAttributes(
+                new int[] {android.R.attr.colorBackground});
+        background = a.getColor(0, surfaceContainerLow);
+        a.recycle();
 
         blue = c(context, com.android.settings.R.color.homepage_blue_bg);
         pink = c(context, com.android.settings.R.color.homepage_pink_bg);

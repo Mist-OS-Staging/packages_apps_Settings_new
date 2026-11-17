@@ -18,6 +18,8 @@ public class MorphBadgeView extends View {
     static final int CIRCLE = 0;
     static final int SUNNY = 1;
     static final int CLOVER = 2;
+    static final int COOKIE = 3;
+    static final int SOFT_CLOVER = 4;
 
     private static final int POINTS = 144;
 
@@ -73,6 +75,10 @@ public class MorphBadgeView extends View {
                 return (float) (0.925 + 0.075 * Math.cos(8 * angle));
             case CLOVER:
                 return (float) (0.82 - 0.18 * Math.cos(4 * angle));
+            case COOKIE:
+                return (float) (0.915 + 0.085 * Math.cos(9 * angle));
+            case SOFT_CLOVER:
+                return (float) (0.88 + 0.12 * Math.cos(4 * angle));
             default:
                 return 1f;
         }
@@ -105,9 +111,24 @@ public class MorphBadgeView extends View {
         canvas.drawPath(mPath, mPaint);
         canvas.restore();
         if (mIcon != null) {
-            int s = Math.round(mIconSize / 2f);
-            mIcon.setBounds(Math.round(cx) - s, Math.round(cy) - s,
-                    Math.round(cx) + s, Math.round(cy) + s);
+            float w = mIconSize;
+            float h = mIconSize;
+            int iw = mIcon.getIntrinsicWidth();
+            int ih = mIcon.getIntrinsicHeight();
+            if (iw > 0 && ih > 0 && iw != ih) {
+                float aspect = (float) iw / ih;
+                if (aspect > 1f) {
+                    w = mIconSize * Math.min(aspect, 1.6f);
+                    h = w / aspect;
+                } else {
+                    h = mIconSize * Math.min(1f / aspect, 1.6f);
+                    w = h * aspect;
+                }
+            }
+            int hw = Math.round(w / 2f);
+            int hh = Math.round(h / 2f);
+            mIcon.setBounds(Math.round(cx) - hw, Math.round(cy) - hh,
+                    Math.round(cx) + hw, Math.round(cy) + hh);
             mIcon.draw(canvas);
         }
     }

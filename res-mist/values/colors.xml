@@ -46,4 +46,5 @@
     <color name="mist_about_on_official_container">#0B3A1C</color>
     <color name="mist_about_unofficial_container">#FFDAD6</color>
     <color name="mist_about_on_unofficial_container">#410002</color>
+    <color name="ff_scrim">#52000000</color>
 </resources>

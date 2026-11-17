@@ -59,6 +59,7 @@ public class FreeFlowGridView extends ViewGroup implements FreeFlowCardView.Call
     private final int mTouchSlop;
     private final float mGap;
     private final float mRow;
+    private int[] mRowMap;
     private final Map<String, FreeFlowCardView> mViews = new LinkedHashMap<>();
     private final Map<String, CardData> mData = new HashMap<>();
     private final Map<String, PointF> mFlip = new HashMap<>();
@@ -275,6 +276,11 @@ public class FreeFlowGridView extends ViewGroup implements FreeFlowCardView.Call
                 bottom = Math.max(bottom, s.bottom());
             }
         }
+        if (!mEditing) {
+            buildRowMap(bottom);
+            return bottom == 0 ? 0 : Math.max(1, mRowMap[bottom]);
+        }
+        mRowMap = null;
         if (mDrop != null) {
             bottom = Math.max(bottom, mDrop[1] + mDrop[3]);
         }
@@ -285,6 +291,30 @@ public class FreeFlowGridView extends ViewGroup implements FreeFlowCardView.Call
             return 0;
         }
         return Math.max(1, bottom + (mEditing ? 4 : 0));
+    }
+
+    private void buildRowMap(int bottom) {
+        boolean[] used = new boolean[bottom];
+        for (CardLayout.Spec s : mOrder) {
+            if (isShown(s)) {
+                for (int r = s.row; r < s.bottom() && r < bottom; r++) {
+                    used[r] = true;
+                }
+            }
+        }
+        mRowMap = new int[bottom + 1];
+        int shift = 0;
+        for (int r = 0; r < bottom; r++) {
+            mRowMap[r] = r - shift;
+            if (!used[r]) {
+                shift++;
+            }
+        }
+        mRowMap[bottom] = bottom - shift;
+    }
+
+    private int displayRow(int row) {
+        return mRowMap != null && row >= 0 && row < mRowMap.length ? mRowMap[row] : row;
     }
 
     @Override
@@ -323,7 +353,7 @@ public class FreeFlowGridView extends ViewGroup implements FreeFlowCardView.Call
                 continue;
             }
             int left = Math.round(s.col * (col + mGap));
-            int top = Math.round(s.row * (mRow + mGap));
+            int top = Math.round(displayRow(s.row) * (mRow + mGap));
             v.layout(left, top, left + v.getMeasuredWidth(), top + v.getMeasuredHeight());
         }
         if (mAddAt != null) {

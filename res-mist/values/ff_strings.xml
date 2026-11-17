@@ -17,6 +17,9 @@
     <string name="ff_mistify" translatable="false">Mistify</string>
     <string name="ff_about_device">ABOUT DEVICE</string>
     <string name="ff_about_device_desc">About device</string>
+    <string name="ff_hero_customise">Customise</string>
+    <string name="ff_hero_mistify_desc">Themes, fonts, icons and more</string>
+    <string name="ff_hero_about">About phone</string>
     <string name="ff_rom_name" translatable="false">MistOS</string>
     <string name="ff_android_version">Android <xliff:g id="version" example="16">%1$s</xliff:g></string>
 

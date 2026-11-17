@@ -320,12 +320,6 @@ public class SettingsHomepageActivity extends FragmentActivity implements
                 spannableString.setSpan(new android.text.style.ForegroundColorSpan(accentColor),
                         welcomeStr.length(), welcomeStr.length() + userName.length(),
                         android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                if (mFreeFlow != null) {
-                    spannableString.setSpan(
-                            new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
-                            welcomeStr.length(), welcomeStr.length() + userName.length(),
-                            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                }
                 final String originalTitle = getString(R.string.settings_label);
                 titleView.setText(spannableString);
                 titleView.postDelayed(() -> {

@@ -69,6 +69,7 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
     private final Palette mPalette;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final Set<String> mHiddenByUs = new HashSet<>();
+    private final Set<PreferenceGroup> mHiddenGroups = new HashSet<>();
     private final CardData mBattery = new CardData();
     private final CardData mStorage = new CardData();
     private final Runnable mRefresh = this::refresh;
@@ -79,10 +80,10 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
     private View[] mDots;
     private FreeFlowGridView mGrid;
     private View mTopBar;
-    private View mTopContent;
-    private TextView mTopTitle;
-    private View mTopActions;
-    private View mEditActions;
+    private View mSearchRow;
+    private View mSpacer;
+    private View mStatusBand;
+    private View mSheetDivider;
     private View mScrim;
     private SheetFrame mSheet;
     private ImageView mChevron;
@@ -96,6 +97,7 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
     private boolean mReceiverRegistered;
     private int mTopInset;
     private int mBottomInset;
+    private float mDividerTarget;
 
     private final OnBackPressedCallback mBack = new OnBackPressedCallback(false) {
         @Override
@@ -189,10 +191,10 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
                 mActivity.findViewById(R.id.ff_dot_1)};
         mGrid = mActivity.findViewById(R.id.ff_grid);
         mTopBar = mActivity.findViewById(R.id.ff_top_bar);
-        mTopContent = mActivity.findViewById(R.id.ff_top_content);
-        mTopTitle = mActivity.findViewById(R.id.ff_top_title);
-        mTopActions = mActivity.findViewById(R.id.ff_top_actions);
-        mEditActions = mActivity.findViewById(R.id.ff_edit_actions);
+        mSearchRow = mActivity.findViewById(R.id.ff_search_row);
+        mSpacer = mActivity.findViewById(R.id.ff_search_spacer);
+        mStatusBand = mActivity.findViewById(R.id.ff_status_band);
+        mSheetDivider = mActivity.findViewById(R.id.ff_sheet_divider);
         mScrim = mActivity.findViewById(R.id.ff_scrim);
         mSheet = mActivity.findViewById(R.id.ff_sheet);
         mChevron = mActivity.findViewById(R.id.ff_sheet_chevron);
@@ -210,18 +212,20 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
         mGrid.setListener(this);
         mGrid.setOrder(CardLayout.load(mActivity, mHasAccountProvider), false);
 
-        mActivity.findViewById(R.id.ff_top_search).setOnClickListener(v -> openSearch());
-        View topMist = mActivity.findViewById(R.id.ff_top_mist);
-        topMist.setOnClickListener(v -> mActivity.showMistInfoSheet());
-        setupMistButton(mActivity.findViewById(R.id.ff_top_mist_logo));
         mActivity.findViewById(R.id.ff_edit_reset).setOnClickListener(v -> resetLayout());
         mActivity.findViewById(R.id.ff_edit_done).setOnClickListener(v -> exitEdit());
         mScroll.setOnScrollChangeListener(
-                (NestedScrollView.OnScrollChangeListener) (v, x, y, ox, oy) -> updateTopBar());
-        View.OnLayoutChangeListener relayout =
-                (v, l, t, r, b, ol, ot, or, ob) -> updateTopBar();
-        mTopBar.addOnLayoutChangeListener(relayout);
-        mHeader.addOnLayoutChangeListener(relayout);
+                (NestedScrollView.OnScrollChangeListener) (v, x, y, ox, oy) -> updatePin());
+        mSearchRow.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+            int h = b - t;
+            ViewGroup.LayoutParams lp = mSpacer.getLayoutParams();
+            if (h > 0 && lp.height != h) {
+                lp.height = h;
+                mSpacer.setLayoutParams(lp);
+            }
+            updatePin();
+        });
+        mHeader.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> updatePin());
 
         setupSheet();
         attachFragment();
@@ -246,8 +250,9 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
                     .setStartDelay(60 + i * 90L).setDuration(650)
                     .setInterpolator(FreeFlowStyle.SPRING).start();
         }
-        View search = mActivity.findViewById(R.id.search_action_bar);
-        View mist = mActivity.findViewById(R.id.ff_mist_button);
+        View bar = mActivity.findViewById(R.id.search_action_bar);
+        View search = bar.getParent() instanceof View ? (View) bar.getParent() : bar;
+        View mist = mActivity.findViewById(R.id.btnMistVersion);
         search.setAlpha(0f);
         search.setTranslationY(FreeFlowStyle.dp(mActivity, 12));
         search.animate().alpha(1f).translationY(0f).setStartDelay(20).setDuration(500)
@@ -268,6 +273,13 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
         mBottomInset = bottom;
         if (mTopBar != null) {
             mTopBar.setPadding(0, top, 0, 0);
+        }
+        if (mStatusBand != null) {
+            ViewGroup.LayoutParams lp = mStatusBand.getLayoutParams();
+            if (lp.height != top) {
+                lp.height = top;
+                mStatusBand.setLayoutParams(lp);
+            }
         }
         if (mScroll != null) {
             mScroll.setPadding(0, 0, 0, bottom);
@@ -291,6 +303,34 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
         if (list.getPaddingBottom() != bottom) {
             list.setPadding(list.getPaddingLeft(), list.getPaddingTop(),
                     list.getPaddingRight(), bottom);
+        }
+        list.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
+        View container = mActivity.findViewById(R.id.ff_all_settings_container);
+        if (container != null && !container.getClipToOutline()) {
+            container.setOutlineProvider(android.view.ViewOutlineProvider.BOUNDS);
+            container.setClipToOutline(true);
+        }
+        if (list.getTag(R.id.ff_sheet_divider) == null) {
+            list.setTag(R.id.ff_sheet_divider, Boolean.TRUE);
+            list.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(@NonNull RecyclerView rv, int dx, int dy) {
+                    updateDivider(rv);
+                }
+            });
+        }
+        updateDivider(list);
+    }
+
+    private void updateDivider(RecyclerView list) {
+        if (mSheetDivider == null) {
+            return;
+        }
+        float target = list.canScrollVertically(-1) ? 1f : 0f;
+        if (mDividerTarget != target) {
+            mDividerTarget = target;
+            mSheetDivider.animate().alpha(target)
+                    .setDuration(FreeFlowStyle.duration(120)).start();
         }
     }
 
@@ -323,13 +363,6 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
             }
             return false;
         });
-    }
-
-    private void openSearch() {
-        View search = mActivity.findViewById(R.id.search_action_bar);
-        if (search != null) {
-            search.performClick();
-        }
     }
 
     private void setupSheet() {
@@ -530,7 +563,7 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
             return false;
         }
         PreferenceGroup parent = p.getParent();
-        return parent == null || parent.isVisible() || mHiddenByUs.contains(parent.getKey());
+        return parent == null || parent.isVisible() || mHiddenGroups.contains(parent);
     }
 
     private Preference accountPref(PreferenceScreen screen) {
@@ -609,11 +642,11 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
         });
         for (int i = 0; i < screen.getPreferenceCount(); i++) {
             Preference p = screen.getPreference(i);
-            if (!(p instanceof PreferenceGroup) || p.getKey() == null) {
+            if (!(p instanceof PreferenceGroup)) {
                 continue;
             }
             PreferenceGroup group = (PreferenceGroup) p;
-            boolean ours = mHiddenByUs.contains(group.getKey());
+            boolean ours = mHiddenGroups.contains(group);
             if (!group.isVisible() && !ours) {
                 continue;
             }
@@ -625,9 +658,9 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
             }
             if (empty && group.isVisible()) {
                 group.setVisible(false);
-                mHiddenByUs.add(group.getKey());
+                mHiddenGroups.add(group);
             } else if (!empty && ours) {
-                mHiddenByUs.remove(group.getKey());
+                mHiddenGroups.remove(group);
                 group.setVisible(true);
             }
         }
@@ -918,30 +951,25 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
     }
 
     private void updateTopBarMode() {
-        mTopTitle.setText(mEditing ? R.string.ff_edit_shortcuts : R.string.settings_label);
-        mTopActions.setVisibility(mEditing ? View.GONE : View.VISIBLE);
-        mEditActions.setVisibility(mEditing ? View.VISIBLE : View.GONE);
-        updateTopBar();
+        mTopBar.setBackgroundColor(mPalette.surfaceContainer);
+        mTopBar.setVisibility(mEditing ? View.VISIBLE : View.INVISIBLE);
+        mSearchRow.setVisibility(mEditing ? View.INVISIBLE : View.VISIBLE);
+        updatePin();
     }
 
-    private void updateTopBar() {
-        if (mTopBar == null || mHeader == null) {
+    private void updatePin() {
+        if (mSearchRow == null || mHeader == null || mSpacer == null) {
             return;
         }
-        float v;
-        if (mEditing) {
-            v = 1f;
-        } else if (mHeader.getHeight() == 0 || mTopBar.getHeight() == 0
-                || mHeader.getBottom() <= mTopBar.getHeight()) {
-            v = 0f;
-        } else {
-            int threshold = mHeader.getBottom() - mTopBar.getHeight();
-            v = FreeFlowStyle.clamp((mScroll.getScrollY() - threshold)
-                    / FreeFlowStyle.dp(mActivity, 40), 0f, 1f);
-        }
-        mTopBar.setBackgroundColor(FreeFlowStyle.withAlpha(mPalette.surfaceContainer, v));
-        mTopContent.setAlpha(v);
-        mTopBar.setVisibility(v > 0f ? View.VISIBLE : View.INVISIBLE);
+        int rowTop = mHeader.getTop() + mSpacer.getTop() - mScroll.getScrollY();
+        int y = Math.max(mTopInset, rowTop);
+        mSearchRow.setTranslationY(y);
+        float p = mEditing ? 0f : FreeFlowStyle.clamp((mTopInset - rowTop)
+                / FreeFlowStyle.dp(mActivity, 24), 0f, 1f);
+        int color = (int) new ArgbEvaluator().evaluate(p, mPalette.background,
+                mPalette.surfaceContainer);
+        mSearchRow.setBackgroundColor(color);
+        mStatusBand.setBackgroundColor(mEditing ? mPalette.surfaceContainer : color);
     }
 
     private void updateBack() {
