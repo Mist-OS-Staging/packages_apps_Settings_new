@@ -49,7 +49,14 @@ public class RoundCornerPreferenceAdapter extends PreferenceGroupAdapter {
     private final Runnable mSyncRunnable = new Runnable() {
         @Override
         public void run() {
+            List<Integer> old = mRoundCornerMappingList;
             updatePreferences();
+            if (!mRoundCornerMappingList.equals(old)) {
+                int count = Math.min(getItemCount(), mRoundCornerMappingList.size());
+                if (count > 0) {
+                    notifyItemRangeChanged(0, count);
+                }
+            }
         }
     };
 
@@ -74,6 +81,12 @@ public class RoundCornerPreferenceAdapter extends PreferenceGroupAdapter {
     }
 
     protected @DrawableRes int getRoundCornerDrawableRes(int position, boolean isSelected) {
+        if (position < 0 || position >= mRoundCornerMappingList.size()) {
+            updatePreferences();
+        }
+        if (position < 0 || position >= mRoundCornerMappingList.size()) {
+            return 0;
+        }
         int CornerType = mRoundCornerMappingList.get(position);
 
         if ((CornerType & ROUND_CORNER_CENTER) == 0) {
