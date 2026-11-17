@@ -185,6 +185,12 @@
             android:name="android.window.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED"
             android:value="true" />
 
+        <activity android:name="com.mist.freeflow.FreeFlowMistifyActivity"
+                  android:label="@string/ff_mistify"
+                  android:theme="@style/Theme.Settings.Home"
+                  android:exported="false"
+                  android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|smallestScreenSize" />
+
         <!-- Settings -->
         <activity android:name=".homepage.SettingsHomepageActivity"
                   android:label="@string/settings_label_launcher"

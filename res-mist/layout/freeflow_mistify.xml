@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2026 MistOS
+     SPDX-License-Identifier: Apache-2.0
+-->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ff_mfy_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/ff_mfy_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingStart="16dp"
+        android:paddingTop="68dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="40dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/ff_mfy_hero"
+                android:layout_width="match_parent"
+                android:layout_height="184dp"
+                android:background="@drawable/ff_mfy_hero_bg"
+                android:clipToOutline="true"
+                android:importantForAccessibility="no">
+
+                <com.mist.freeflow.MorphBadgeView
+                    android:id="@+id/ff_mfy_bg_shape"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_gravity="bottom|start"
+                    android:layout_marginStart="-60dp"
+                    android:layout_marginBottom="-90dp" />
+
+                <LinearLayout
+                    android:id="@+id/ff_mfy_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="26dp"
+                    android:layout_marginEnd="132dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ff_mfy_label_bg"
+                        android:fontFamily="@*android:string/config_headlineFontFamilyMedium"
+                        android:letterSpacing="0.08"
+                        android:paddingStart="10dp"
+                        android:paddingTop="5dp"
+                        android:paddingEnd="10dp"
+                        android:paddingBottom="5dp"
+                        android:text="@string/ff_customise"
+                        android:textColor="@color/settingslib_materialColorOnTertiaryContainer"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:accessibilityHeading="true"
+                        android:autoSizeMaxTextSize="46sp"
+                        android:autoSizeMinTextSize="28sp"
+                        android:autoSizeTextType="uniform"
+                        android:fontFamily="@*android:string/config_headlineFontFamily"
+                        android:fontVariationSettings="'wdth' 125, 'wght' 800"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/ff_mistify"
+                        android:textColor="@color/settingslib_materialColorOnTertiaryContainer"
+                        android:textSize="46sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:id="@+id/ff_mfy_dots"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal" />
+                </LinearLayout>
+
+                <com.mist.freeflow.MorphBadgeView
+                    android:id="@+id/ff_mfy_badge"
+                    android:layout_width="104dp"
+                    android:layout_height="104dp"
+                    android:layout_gravity="center_vertical|end"
+                    android:layout_marginEnd="18dp" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/ff_mfy_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/ff_mfy_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/colorBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp">
+
+        <ImageView
+            android:id="@+id/ff_mfy_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="4dp"
+            android:background="@drawable/ff_circle_ripple"
+            android:contentDescription="@string/ff_back"
+            android:scaleType="center"
+            android:src="@drawable/ff_ic_back"
+            android:tint="@color/settingslib_materialColorOnSurface" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <FrameLayout
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="4dp">
+
+            <ImageView
+                android:id="@+id/ff_mfy_search"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/ff_circle_ripple"
+                android:contentDescription="@string/ff_search_settings"
+                android:scaleType="center"
+                android:src="@drawable/ff_ic_search"
+                android:tint="@color/settingslib_materialColorOnSurface" />
+        </FrameLayout>
+    </LinearLayout>
+
+</FrameLayout>
