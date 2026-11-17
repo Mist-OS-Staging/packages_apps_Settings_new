@@ -22,6 +22,7 @@ public class MorphBadgeView extends View {
     static final int SOFT_CLOVER = 4;
 
     private static final int POINTS = 144;
+    private static final long SETTLE_MS = 120;
 
     private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Path mPath = new Path();
@@ -31,6 +32,9 @@ public class MorphBadgeView extends View {
     private float mRotation = 0f;
     private float mIconSize;
     private Drawable mIcon;
+    private android.graphics.Bitmap mCache;
+    private long mChangedAt;
+    private final Runnable mSettle = this::invalidate;
 
     public MorphBadgeView(Context context) {
         this(context, null);
@@ -45,12 +49,33 @@ public class MorphBadgeView extends View {
 
     void setShape(int shape) {
         mShape = shape;
+        changed();
+    }
+
+    private void changed() {
+        mCache = null;
+        mChangedAt = android.os.SystemClock.uptimeMillis();
+        removeCallbacks(mSettle);
+        postDelayed(mSettle, SETTLE_MS + 20);
         invalidate();
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        mCache = null;
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        removeCallbacks(mSettle);
+        mCache = null;
     }
 
     void setColor(int color) {
         mPaint.setColor(color);
-        invalidate();
+        changed();
     }
 
     void setIcon(Drawable icon, int tint) {
@@ -58,7 +83,7 @@ public class MorphBadgeView extends View {
         if (mIcon != null) {
             mIcon.setTint(tint);
         }
-        invalidate();
+        changed();
     }
 
     void setState(float morph, float scale, float rotation, float iconSizePx) {
@@ -66,7 +91,7 @@ public class MorphBadgeView extends View {
         mScale = scale;
         mRotation = rotation;
         mIconSize = iconSizePx;
-        invalidate();
+        changed();
     }
 
     static float radius(int shape, double angle) {
@@ -102,6 +127,24 @@ public class MorphBadgeView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        int w = getWidth();
+        int h = getHeight();
+        if (w <= 0 || h <= 0) {
+            return;
+        }
+        if (android.os.SystemClock.uptimeMillis() - mChangedAt < SETTLE_MS) {
+            drawBadge(canvas);
+            return;
+        }
+        if (mCache == null) {
+            mCache = android.graphics.Bitmap.createBitmap(w, h,
+                    android.graphics.Bitmap.Config.ARGB_8888);
+            drawBadge(new Canvas(mCache));
+        }
+        canvas.drawBitmap(mCache, 0f, 0f, null);
+    }
+
+    private void drawBadge(Canvas canvas) {
         float cx = getWidth() / 2f;
         float cy = getHeight() / 2f;
         float half = Math.min(getWidth(), getHeight()) / 2f * mScale;

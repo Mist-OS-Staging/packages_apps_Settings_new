@@ -102,6 +102,7 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
     private int mTopInset;
     private int mBottomInset;
     private float mDividerTarget;
+    private boolean mGridIntroPending;
 
     private final OnBackPressedCallback mBack = new OnBackPressedCallback(false) {
         @Override
@@ -265,33 +266,47 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
     }
 
     private void animateIn() {
-        View[] views = {mActivity.findViewById(R.id.ff_hero), mGrid};
-        for (int i = 0; i < views.length; i++) {
-            View v = views[i];
-            v.setAlpha(0f);
-            v.setTranslationY(FreeFlowStyle.dp(mActivity, 28));
-            v.setScaleX(0.94f);
-            v.setScaleY(0.94f);
-            v.animate().alpha(1f).translationY(0f).scaleX(1f).scaleY(1f)
-                    .setStartDelay(60 + i * 90L).setDuration(650)
-                    .setInterpolator(FreeFlowStyle.SPRING).start();
-        }
+        rise(mActivity.findViewById(R.id.ff_hero), 60);
+        mGrid.setAlpha(0f);
+        mGridIntroPending = true;
+        mHandler.postDelayed(this::playGridIntro, 1200);
         View bar = mActivity.findViewById(R.id.search_action_bar);
         View search = bar.getParent() instanceof View ? (View) bar.getParent() : bar;
         View mist = mActivity.findViewById(R.id.btnMistVersion);
         search.setAlpha(0f);
         search.setTranslationY(FreeFlowStyle.dp(mActivity, 12));
         search.animate().alpha(1f).translationY(0f).setStartDelay(20).setDuration(500)
-                .setInterpolator(FreeFlowStyle.SPRING).start();
+                .setInterpolator(FreeFlowStyle.SPRING).withLayer().start();
         mist.setAlpha(0f);
         mist.setScaleX(0.5f);
         mist.setScaleY(0.5f);
         mist.setRotation(-45f);
         mist.animate().alpha(1f).scaleX(1f).scaleY(1f).rotation(0f).setStartDelay(80)
-                .setDuration(700).setInterpolator(FreeFlowStyle.SPRING).start();
+                .setDuration(700).setInterpolator(FreeFlowStyle.SPRING).withLayer().start();
         mSheet.setTranslationY(FreeFlowStyle.dp(mActivity, 120));
         mSheet.animate().translationY(0f).setStartDelay(200).setDuration(600)
                 .setInterpolator(FreeFlowStyle.SHEET).start();
+    }
+
+    private void rise(View v, long delay) {
+        v.setAlpha(0f);
+        v.setTranslationY(FreeFlowStyle.dp(mActivity, 28));
+        v.setScaleX(0.94f);
+        v.setScaleY(0.94f);
+        v.animate().alpha(1f).translationY(0f).scaleX(1f).scaleY(1f)
+                .setStartDelay(delay).setDuration(650)
+                .setInterpolator(FreeFlowStyle.SPRING).withLayer().start();
+    }
+
+    private void playGridIntro() {
+        if (!mGridIntroPending) {
+            return;
+        }
+        mGridIntroPending = false;
+        if (mActivity.isDestroyed()) {
+            return;
+        }
+        rise(mGrid, 0);
     }
 
     public void onInsets(int top, int bottom) {
@@ -741,6 +756,9 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
             map.put(s.key, dataFor(s.key, p));
         }
         mGrid.setData(map);
+        if (mGridIntroPending && !map.isEmpty()) {
+            mGrid.post(this::playGridIntro);
+        }
     }
 
     private CardData dataFor(String cardKey, Preference p) {

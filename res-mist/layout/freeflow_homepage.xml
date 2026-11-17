@@ -226,7 +226,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/ff_sheet_bg"
-        android:elevation="8dp"
+        android:elevation="3dp"
         android:orientation="vertical"
         app:layout_behavior="com.mist.freeflow.FreeFlowSheetBehavior">
 
