@@ -250,17 +250,13 @@ final class FreeFlowCardView extends FrameLayout {
             return;
         }
         int pad = FreeFlowStyle.dpi(c, 16);
-        mContent.setPaddingRelative(FreeFlowStyle.dpi(c, 18), pad, pad, pad);
+        mContent.setPaddingRelative(pad, pad, pad, pad);
         if (kind == CardData.BATTERY) {
             buildBattery(c, wide, big);
         } else if (kind == CardData.STORAGE) {
             buildStorage(c, wide, big);
-        } else if (kind == CardData.ACCOUNT && wide) {
-            buildAccount(c);
-        } else if (wide && mSpec.rowSpan == 2) {
-            buildRow(c);
         } else {
-            buildColumn(c, big);
+            buildColumn(c, big, wide);
         }
     }
 
@@ -378,7 +374,7 @@ final class FreeFlowCardView extends FrameLayout {
         mContent.addView(texts, tlp);
     }
 
-    private void buildColumn(Context c, boolean big) {
+    private void buildColumn(Context c, boolean big, boolean wide) {
         mContent.addView(icon(c, ICON_DP));
         mContent.addView(new View(c), new LinearLayout.LayoutParams(0, 0, 1f));
         TextView title = Ui.text(c, big ? 18 : 16, 500, mPalette.onSurface);
@@ -389,7 +385,7 @@ final class FreeFlowCardView extends FrameLayout {
         mContent.addView(title);
         if (!TextUtils.isEmpty(mData.summary)) {
             TextView sub = Ui.text(c, 13, 400, mPalette.onSurfaceVariant);
-            sub.setMaxLines(big ? 4 : 1);
+            sub.setMaxLines(big ? 4 : wide ? 2 : 1);
             sub.setEllipsize(TextUtils.TruncateAt.END);
             sub.setText(mData.summary);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -397,60 +393,6 @@ final class FreeFlowCardView extends FrameLayout {
             lp.topMargin = FreeFlowStyle.dpi(c, 2);
             mContent.addView(sub, lp);
         }
-    }
-
-    private void buildRow(Context c) {
-        mContent.setOrientation(LinearLayout.HORIZONTAL);
-        mContent.setGravity(Gravity.CENTER_VERTICAL);
-        mContent.setPaddingRelative(mContent.getPaddingStart() + FreeFlowStyle.dpi(c, 4),
-                mContent.getPaddingTop(), mContent.getPaddingEnd(), mContent.getPaddingBottom());
-        mContent.addView(icon(c, ICON_DP));
-        LinearLayout texts = new LinearLayout(c);
-        texts.setOrientation(LinearLayout.VERTICAL);
-        TextView title = Ui.line(c, 16, 500, mPalette.onSurface);
-        title.setText(mData.title);
-        texts.addView(title);
-        if (!TextUtils.isEmpty(mData.summary)) {
-            TextView sub = Ui.text(c, 14, 400, mPalette.onSurfaceVariant);
-            sub.setMaxLines(2);
-            sub.setEllipsize(TextUtils.TruncateAt.END);
-            sub.setText(mData.summary);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-            lp.topMargin = FreeFlowStyle.dpi(c, 3);
-            texts.addView(sub, lp);
-        }
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0,
-                LayoutParams.WRAP_CONTENT, 1f);
-        lp.setMarginStart(FreeFlowStyle.dpi(c, 18));
-        mContent.addView(texts, lp);
-    }
-
-    private void buildAccount(Context c) {
-        mContent.setOrientation(LinearLayout.HORIZONTAL);
-        mContent.setGravity(Gravity.CENTER_VERTICAL);
-        mContent.setPaddingRelative(mContent.getPaddingStart() + FreeFlowStyle.dpi(c, 4),
-                mContent.getPaddingTop(), mContent.getPaddingEnd(), mContent.getPaddingBottom());
-        mContent.addView(icon(c, 44));
-        LinearLayout texts = new LinearLayout(c);
-        texts.setOrientation(LinearLayout.VERTICAL);
-        TextView title = Ui.line(c, 18, 500, mPalette.onSurface);
-        title.setText(mData.title);
-        texts.addView(title);
-        if (!TextUtils.isEmpty(mData.summary)) {
-            TextView sub = Ui.text(c, 14, 400, mPalette.onSurfaceVariant);
-            sub.setMaxLines(2);
-            sub.setEllipsize(TextUtils.TruncateAt.END);
-            sub.setText(mData.summary);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-            lp.topMargin = FreeFlowStyle.dpi(c, 3);
-            texts.addView(sub, lp);
-        }
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0,
-                LayoutParams.WRAP_CONTENT, 1f);
-        lp.setMarginStart(FreeFlowStyle.dpi(c, 18));
-        mContent.addView(texts, lp);
     }
 
     private float numberSize(boolean big) {

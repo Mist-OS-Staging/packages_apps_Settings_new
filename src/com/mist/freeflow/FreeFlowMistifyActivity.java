@@ -9,7 +9,6 @@ import android.app.settings.SettingsEnums;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -73,21 +72,16 @@ public class FreeFlowMistifyActivity extends FragmentActivity {
                         SettingsEnums.SETTINGS_HOMEPAGE);
 
         MorphBadgeView badge = findViewById(R.id.ff_mfy_badge);
-        badge.setShape(MorphBadgeView.SUNNY);
-        badge.setColor(mPalette.pink);
-        badge.setIcon(getDrawable(R.drawable.ff_ic_brush), 0xffffffff);
-        badge.setState(1f, 1f, 0f, FreeFlowStyle.dp(this, 42));
+        badge.setShape(MorphBadgeView.COOKIE);
+        badge.setColor(mPalette.primary);
+        badge.setIcon(getDrawable(R.drawable.logo_single), mPalette.onPrimary);
+        setBadge(badge, 1f);
 
-        MorphBadgeView bg = findViewById(R.id.ff_mfy_bg_shape);
-        bg.setShape(MorphBadgeView.CLOVER);
-        bg.setColor(FreeFlowStyle.withAlpha(mPalette.onTertiaryContainer, 0.12f));
-
-        buildDots(findViewById(R.id.ff_mfy_dots));
         List<View> rows = buildList(findViewById(R.id.ff_mfy_list));
 
         if (savedInstanceState == null && FreeFlowStyle.motion()) {
             animateIn(findViewById(R.id.ff_mfy_hero), findViewById(R.id.ff_mfy_title), badge,
-                    bg, rows);
+                    rows);
         }
     }
 
@@ -95,31 +89,6 @@ public class FreeFlowMistifyActivity extends FragmentActivity {
     public void finish() {
         super.finish();
         overridePendingTransition(R.anim.ff_hold, R.anim.ff_slide_out_end);
-    }
-
-    private void buildDots(LinearLayout dots) {
-        int size = FreeFlowStyle.dpi(this, 20);
-        float full = size / 2f;
-        float r7 = FreeFlowStyle.dp(this, 7);
-        float r5 = FreeFlowStyle.dp(this, 5);
-        float[][] radii = {
-                {full, full, full, full, full, full, full, full},
-                {r7, r7, r7, r7, r7, r7, r7, r7},
-                {full, full, full, full, full, full, r5, r5},
-                {full, full, full, full, full, full, full, full}};
-        int[] colors = {mPalette.purple, mPalette.pink, mPalette.orange, mPalette.green};
-        for (int i = 0; i < 4; i++) {
-            View dot = new View(this);
-            GradientDrawable d = new GradientDrawable();
-            d.setCornerRadii(radii[i]);
-            d.setColor(colors[i]);
-            dot.setBackground(d);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
-            if (i > 0) {
-                lp.setMarginStart(FreeFlowStyle.dpi(this, 6));
-            }
-            dots.addView(dot, lp);
-        }
     }
 
     private int colorFor(String key) {
@@ -279,24 +248,26 @@ public class FreeFlowMistifyActivity extends FragmentActivity {
         }
     }
 
-    private void animateIn(View hero, View title, View badge, View bg, List<View> rows) {
+    private void setBadge(MorphBadgeView badge, float e) {
+        float morph = FreeFlowStyle.clamp(e, 0f, 1f);
+        badge.setState(morph, FreeFlowStyle.lerp(0.32f, 1f, e), FreeFlowStyle.lerp(-135f, 0f, e),
+                FreeFlowStyle.dp(this, FreeFlowStyle.lerp(20, 46, morph)));
+    }
+
+    private void animateIn(View hero, View title, MorphBadgeView badge, List<View> rows) {
         hero.setScaleX(0.88f);
         hero.setScaleY(0.88f);
         hero.setTranslationY(FreeFlowStyle.dp(this, 20));
         hero.setAlpha(0f);
         hero.animate().scaleX(1f).scaleY(1f).translationY(0f).alpha(1f).setStartDelay(80)
                 .setDuration(700).setInterpolator(FreeFlowStyle.SPRING).start();
-        badge.setScaleX(0.4f);
-        badge.setScaleY(0.4f);
-        badge.setRotation(-90f);
-        badge.setAlpha(0f);
-        badge.animate().scaleX(1f).scaleY(1f).rotation(0f).alpha(1f).setStartDelay(200)
-                .setDuration(1000).setInterpolator(FreeFlowStyle.SPRING).start();
-        bg.setScaleX(0.4f);
-        bg.setScaleY(0.4f);
-        bg.setRotation(-90f);
-        bg.animate().scaleX(1f).scaleY(1f).rotation(0f).setStartDelay(100)
-                .setDuration(1200).setInterpolator(FreeFlowStyle.SPRING).start();
+        setBadge(badge, 0f);
+        android.animation.ValueAnimator morph = android.animation.ValueAnimator.ofFloat(0f, 1f);
+        morph.setStartDelay(220);
+        morph.setDuration(900);
+        morph.setInterpolator(FreeFlowStyle.SPRING);
+        morph.addUpdateListener(a -> setBadge(badge, (float) a.getAnimatedValue()));
+        morph.start();
         rise(title, 220);
         for (int i = 0; i < rows.size(); i++) {
             rise(rows.get(i), 250 + i * 45L);

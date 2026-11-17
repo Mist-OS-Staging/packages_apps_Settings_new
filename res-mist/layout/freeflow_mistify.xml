@@ -35,68 +35,58 @@
                 android:importantForAccessibility="no">
 
                 <com.mist.freeflow.MorphBadgeView
-                    android:id="@+id/ff_mfy_bg_shape"
-                    android:layout_width="200dp"
-                    android:layout_height="200dp"
-                    android:layout_gravity="bottom|start"
-                    android:layout_marginStart="-60dp"
-                    android:layout_marginBottom="-90dp" />
+                    android:id="@+id/ff_mfy_badge"
+                    android:layout_width="148dp"
+                    android:layout_height="148dp"
+                    android:layout_gravity="center_vertical|end"
+                    android:layout_marginEnd="-22dp" />
 
                 <LinearLayout
                     android:id="@+id/ff_mfy_title"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="26dp"
-                    android:layout_marginEnd="132dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="22dp"
+                    android:layout_marginEnd="140dp"
+                    android:layout_marginBottom="22dp"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/ff_mfy_label_bg"
+                        android:alpha="0.85"
                         android:fontFamily="@*android:string/config_headlineFontFamilyMedium"
-                        android:letterSpacing="0.08"
-                        android:paddingStart="10dp"
-                        android:paddingTop="5dp"
-                        android:paddingEnd="10dp"
-                        android:paddingBottom="5dp"
-                        android:text="@string/ff_customise"
-                        android:textColor="@color/settingslib_materialColorOnTertiaryContainer"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                        android:text="@string/ff_hero_customise"
+                        android:textColor="@color/settingslib_materialColorOnPrimaryContainer"
+                        android:textSize="14sp" />
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
                         android:accessibilityHeading="true"
-                        android:autoSizeMaxTextSize="46sp"
-                        android:autoSizeMinTextSize="28sp"
-                        android:autoSizeTextType="uniform"
                         android:fontFamily="@*android:string/config_headlineFontFamily"
-                        android:fontVariationSettings="'wdth' 125, 'wght' 800"
                         android:includeFontPadding="false"
                         android:maxLines="1"
                         android:text="@string/ff_mistify"
-                        android:textColor="@color/settingslib_materialColorOnTertiaryContainer"
-                        android:textSize="46sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/settingslib_materialColorOnPrimaryContainer"
+                        android:textSize="36sp" />
 
-                    <LinearLayout
-                        android:id="@+id/ff_mfy_dots"
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:orientation="horizontal" />
+                        android:layout_marginTop="6dp"
+                        android:alpha="0.85"
+                        android:fontFamily="@*android:string/config_bodyFontFamily"
+                        android:maxLines="2"
+                        android:text="@string/ff_hero_mistify_desc"
+                        android:textColor="@color/settingslib_materialColorOnPrimaryContainer"
+                        android:textSize="14sp" />
                 </LinearLayout>
-
-                <com.mist.freeflow.MorphBadgeView
-                    android:id="@+id/ff_mfy_badge"
-                    android:layout_width="104dp"
-                    android:layout_height="104dp"
-                    android:layout_gravity="center_vertical|end"
-                    android:layout_marginEnd="18dp" />
             </FrameLayout>
 
             <LinearLayout
