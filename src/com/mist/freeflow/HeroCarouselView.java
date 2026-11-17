@@ -41,6 +41,8 @@ public class HeroCarouselView extends ViewGroup {
     private float mDownX;
     private float mDownY;
     private boolean mSwiping;
+    private float mStartFraction;
+    private android.view.VelocityTracker mVelocity;
 
     public HeroCarouselView(Context context) {
         this(context, null);
@@ -77,13 +79,23 @@ public class HeroCarouselView extends ViewGroup {
             return;
         }
         mPage = page;
+        animateTo(page, animate);
+        mCards[1 - page].hideText(animate);
+        mCards[page].showText(animate);
+        if (mListener != null) {
+            mListener.onPageChanged(page);
+        }
+    }
+
+    private void animateTo(float target, boolean animate) {
         if (mAnimator != null) {
             mAnimator.cancel();
         }
-        final float target = page;
         if (animate && FreeFlowStyle.motion()) {
+            float distance = Math.abs(target - mFraction);
             mAnimator = ValueAnimator.ofFloat(mFraction, target);
-            mAnimator.setDuration(700);
+            mAnimator.setDuration(Math.round(FreeFlowStyle.lerp(320, 700,
+                    FreeFlowStyle.clamp(distance, 0f, 1f))));
             mAnimator.setInterpolator(FreeFlowStyle.SPRING);
             mAnimator.addUpdateListener(a -> {
                 mFraction = (float) a.getAnimatedValue();
@@ -94,10 +106,41 @@ public class HeroCarouselView extends ViewGroup {
             mFraction = target;
             applyFraction();
         }
-        mCards[1 - page].hideText(animate);
-        mCards[page].showText(animate);
-        if (mListener != null) {
-            mListener.onPageChanged(page);
+    }
+
+    private float travel() {
+        int inner = getWidth() - getPaddingLeft() - getPaddingRight();
+        int gap = FreeFlowStyle.dpi(getContext(), 8);
+        int slim = FreeFlowStyle.dpi(getContext(), 64);
+        return Math.max(1, inner - gap - 2 * slim);
+    }
+
+    private void drag(MotionEvent ev) {
+        if (mAnimator != null) {
+            mAnimator.cancel();
+        }
+        float f = mStartFraction - (ev.getX() - mDownX) / travel();
+        if (f < 0f) {
+            f *= 0.3f;
+        } else if (f > 1f) {
+            f = 1f + (f - 1f) * 0.3f;
+        }
+        mFraction = f;
+        applyFraction();
+    }
+
+    private void settle(float velocityX) {
+        float fling = FreeFlowStyle.dp(getContext(), 600);
+        int target;
+        if (Math.abs(velocityX) > fling) {
+            target = velocityX < 0 ? 1 : 0;
+        } else {
+            target = mFraction > 0.5f ? 1 : 0;
+        }
+        if (target != mPage) {
+            setPage(target, true);
+        } else {
+            animateTo(target, true);
         }
     }
 
@@ -219,8 +262,11 @@ public class HeroCarouselView extends ViewGroup {
                 mDownX = ev.getX();
                 mDownY = ev.getY();
                 mSwiping = false;
+                recycleVelocity();
+                track(ev);
                 break;
             case MotionEvent.ACTION_MOVE:
+                track(ev);
                 checkSwipe(ev);
                 break;
             case MotionEvent.ACTION_UP:
@@ -238,22 +284,48 @@ public class HeroCarouselView extends ViewGroup {
                 mDownX = ev.getX();
                 mDownY = ev.getY();
                 mSwiping = false;
+                recycleVelocity();
+                track(ev);
                 return true;
             case MotionEvent.ACTION_MOVE:
+                track(ev);
                 checkSwipe(ev);
+                if (mSwiping) {
+                    drag(ev);
+                }
                 return true;
             case MotionEvent.ACTION_UP:
-                float dx = ev.getX() - mDownX;
-                if (mSwiping && Math.abs(dx) > FreeFlowStyle.dp(getContext(), 36)) {
-                    setPage(dx < 0 ? 1 : 0, true);
+                track(ev);
+                if (mSwiping) {
+                    mVelocity.computeCurrentVelocity(1000);
+                    settle(mVelocity.getXVelocity());
                 }
                 mSwiping = false;
+                recycleVelocity();
                 return true;
             case MotionEvent.ACTION_CANCEL:
+                if (mSwiping) {
+                    settle(0f);
+                }
                 mSwiping = false;
+                recycleVelocity();
                 return true;
         }
         return super.onTouchEvent(ev);
+    }
+
+    private void track(MotionEvent ev) {
+        if (mVelocity == null) {
+            mVelocity = android.view.VelocityTracker.obtain();
+        }
+        mVelocity.addMovement(ev);
+    }
+
+    private void recycleVelocity() {
+        if (mVelocity != null) {
+            mVelocity.recycle();
+            mVelocity = null;
+        }
     }
 
     private void checkSwipe(MotionEvent ev) {
@@ -261,6 +333,8 @@ public class HeroCarouselView extends ViewGroup {
         float dy = ev.getY() - mDownY;
         if (!mSwiping && Math.abs(dx) > mTouchSlop && Math.abs(dx) > Math.abs(dy)) {
             mSwiping = true;
+            mDownX = ev.getX();
+            mStartFraction = mFraction;
             if (getParent() != null) {
                 getParent().requestDisallowInterceptTouchEvent(true);
             }
