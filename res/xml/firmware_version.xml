@@ -31,4 +31,11 @@
         settings:allowDividerBelow="false"
         settings:iconSpaceReserved="false"/>
 
+    <Preference
+        android:key="mist_my_device_info"
+        android:icon="@drawable/ic_homepage_about"
+        android:title="@string/mist_my_device_info"
+        android:summary="@string/mist_my_device_info_summary"
+        android:fragment="com.android.settings.deviceinfo.aboutphone.MyDeviceInfoFragment"/>
+
 </PreferenceScreen>

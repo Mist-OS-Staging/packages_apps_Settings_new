@@ -70,4 +70,6 @@
     <string name="mist_about_battery">Battery</string>
     <string name="mist_about_build">Build</string>
     <string name="mist_about_kernel_version">Kernel version</string>
+    <string name="mist_my_device_info">My device info</string>
+    <string name="mist_my_device_info_summary">Device name, model, IMEI, status and legal info</string>
 </resources>

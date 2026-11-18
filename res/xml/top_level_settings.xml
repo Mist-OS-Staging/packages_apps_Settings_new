@@ -156,7 +156,7 @@
             settings:highlightableMenuKey="@string/menu_key_system"/>
 
         <com.android.settings.widget.HomepagePreference
-            android:fragment="com.android.settings.deviceinfo.aboutphone.MyDeviceInfoFragment"
+            android:fragment="com.android.settings.deviceinfo.firmwareversion.FirmwareVersionSettings"
             android:icon="@drawable/ic_settings_about_device_filled"
             android:key="top_level_about_device"
             android:order="-10"

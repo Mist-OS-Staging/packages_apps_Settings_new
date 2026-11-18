@@ -60,6 +60,8 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
         FreeFlowGridView.Listener {
 
     private static final String KEY_ABOUT = "top_level_about_device";
+    private static final String FIRMWARE_FRAGMENT =
+            "com.android.settings.deviceinfo.firmwareversion.FirmwareVersionSettings";
     private static final String KEY_ACCOUNT_CATEGORY = "top_level_account_category";
     private static final String PREFIX = "top_level_";
     private static final String KEY_BATTERY = "battery";
@@ -996,11 +998,10 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
             about.performClick();
             return;
         }
-        Intent intent = new Intent(android.provider.Settings.ACTION_DEVICE_INFO_SETTINGS);
-        intent.setPackage(mActivity.getPackageName());
-        if (intent.resolveActivity(mActivity.getPackageManager()) != null) {
-            mActivity.startActivity(intent);
-        }
+        new com.android.settings.core.SubSettingLauncher(mActivity)
+                .setDestination(FIRMWARE_FRAGMENT)
+                .setSourceMetricsCategory(android.app.settings.SettingsEnums.SETTINGS_HOMEPAGE)
+                .launch();
     }
 
     @Override
