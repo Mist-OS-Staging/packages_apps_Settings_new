@@ -435,11 +435,17 @@ public final class FreeFlowHome implements LifecycleEventObserver, HeroCarouselV
                 applySheetOffset(offset);
             }
         });
-        mSheetToggle.setOnClickListener(v -> {
+        View.OnClickListener toggle = v -> {
             boolean open = mBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED;
             mBehavior.setState(open ? BottomSheetBehavior.STATE_COLLAPSED
                     : BottomSheetBehavior.STATE_EXPANDED);
-        });
+        };
+        mSheetToggle.setOnClickListener(toggle);
+        mSheet.setClickable(true);
+        View header = mActivity.findViewById(R.id.ff_sheet_header);
+        if (header != null) {
+            header.setOnClickListener(toggle);
+        }
         mScrim.setOnClickListener(v -> mBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED));
         applySheetOffset(0f);
     }
